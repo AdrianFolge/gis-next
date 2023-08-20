@@ -1,27 +1,21 @@
-import { useState, useMemo, useEffect, useRef } from "react"
-import MapboxComponent from '../components/mapbox'
+import { useState, useMemo, useRef } from "react"
 import mapboxgl from 'mapbox-gl';
-
+import MapComponent from "../components/mapComponent";
 
 const layers = ["https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_populated_places_simple.geojson","https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_geography_regions_points.geojson", "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_populated_places_simple.geojson"]
 
 export default function Home() {
   const [isNavbarOpen, setIsNavbarOpen] = useState(false);
   const [activeLayer, setActiveLayer] = useState(layers[0]);
-
   const toggleNavbar = () => {
     setIsNavbarOpen(!isNavbarOpen);
   };
-
   const toggleLayer = () => {
     const randomIndex = Math.floor(Math.random() * layers.length); // Generate a random index
     const randomLayer = layers[randomIndex]; // Get the layer at the random index
     setActiveLayer(randomLayer); // Set the active layer to the random layer
   };
 
-  const memoizedMapboxComponent = useMemo(
-    () => <MapboxComponent layer={activeLayer}/>, [activeLayer]
-  );
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
@@ -51,7 +45,7 @@ export default function Home() {
           isNavbarOpen ? 'translate-x-1/4' : 'translate-x-0'
         }`}
       >
-        {memoizedMapboxComponent}
+         <MapComponent layer={activeLayer}/>
       </div>
     </div>
   );
