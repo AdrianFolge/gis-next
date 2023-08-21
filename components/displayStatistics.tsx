@@ -18,7 +18,7 @@ const DisplayStatistics: React.FC<displayStatisticsProps> = ({displayTotalPoints
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md grid grid-rows-4 grid-cols-2 m-4">
             <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-1">North America</p>
-            <p className="text-2xl font-bold text-blue-600">{continentData[0]?.coordinates.length  || 0}</p>
+            <p className="text-2xl font-bold text-purple-600">{continentData[0]?.coordinates.length  || 0}</p>
             </div>
             <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-1">Europe</p>
@@ -26,7 +26,7 @@ const DisplayStatistics: React.FC<displayStatisticsProps> = ({displayTotalPoints
             </div>
             <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-1">South America</p>
-            <p className="text-2xl font-bold text-purple-600">{continentData[2]?.coordinates.length  || 0}</p>
+            <p className="text-2xl font-bold text-yellow-500">{continentData[2]?.coordinates.length  || 0}</p>
             </div>
             <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-1">Africa</p>
@@ -34,15 +34,15 @@ const DisplayStatistics: React.FC<displayStatisticsProps> = ({displayTotalPoints
             </div>
             <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-1">Antartica</p>
-            <p className="text-2xl font-bold text-green-600">{continentData[4]?.coordinates.length  || 0}</p>
+            <p className="text-2xl font-bold text-lime-400">{continentData[4]?.coordinates.length  || 0}</p>
             </div>
             <div className="text-center">
             <p className="text-lg font-semibold text-gray-700 mb-1">Asia</p>
-            <p className="text-2xl font-bold text-purple-600">{continentData[5]?.coordinates.length || 0}</p>
+            <p className="text-2xl font-bold text-red-500">{continentData[5]?.coordinates.length || 0}</p>
             </div>
             <div className="text-center col-span-2">
             <p className="text-lg font-semibold text-gray-700 mb-1">Oceanic</p>
-            <p className="text-2xl font-bold text-purple-600">{continentData[6]?.coordinates.length  || 0}</p>
+            <p className="text-2xl font-bold text-stone-400">{continentData[6]?.coordinates.length  || 0}</p>
             </div>
         </div>
     <div className="grid grid-cols-2 gap-4 m-4">
