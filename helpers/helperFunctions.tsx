@@ -33,7 +33,6 @@ export const calculateCenter = (geojson: GeoJSONFeature[]) => {
     const centerLat = (minLat + maxLat) / 2;
     const centerLng = (minLng + maxLng) / 2;
   
-    // Calculate zoom level based on distance between points
     const distanceLng = maxLng - minLng;
     const distanceLat = maxLat - minLat;
     const zoom = Math.min(
@@ -43,3 +42,34 @@ export const calculateCenter = (geojson: GeoJSONFeature[]) => {
   
     return { latitude: centerLat, longitude: centerLng, zoom };
   };
+
+
+
+export interface CountryPoints {
+    [continent: string]: number;
+}
+
+export const countPointsByCountry = (geojsonData: GeoJSON.FeatureCollection): CountryPoints => {
+    const pointsByCountry: CountryPoints = {};
+
+    geojsonData.features.forEach((feature) => {
+        const country = feature.properties?.adm0name; 
+        if (country) {
+            pointsByCountry[country] = (pointsByCountry[country] || 0) + 1;
+        }
+    });
+
+    return pointsByCountry;
+};
+
+export const getTopThreeCountries = (countryPoints: CountryPoints): Array<{ country: string; points: number }> => {
+  const sortedCountries = Object.keys(countryPoints).sort(
+      (a, b) => countryPoints[b] - countryPoints[a]
+  );
+
+  return sortedCountries.slice(0, 3).map(country => ({
+      country,
+      points: countryPoints[country],
+  }));
+};
+

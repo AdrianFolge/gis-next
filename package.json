@@ -9,9 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.14.5",
+    "@turf/turf": "^6.5.0",
     "@types/mapbox-gl": "^2.7.13",
     "@types/react": "^18.2.20",
     "autoprefixer": "^10.4.15",
+    "axios": "^1.4.0",
+    "deck.gl": "^8.9.25",
+    "geojson-utils": "^1.1.0",
     "mapbox-gl": "^2.15.0",
     "next": "13.4.17",
     "postcss": "^8.4.28",
