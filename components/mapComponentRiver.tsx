@@ -15,12 +15,16 @@ interface viewState {
 interface MapComponentProps {
     pointLayer: string;
     lineLayer: string;
+    portsPointLayer: string;
+    coastLinesLayer: string;
+    lakesLayer: string;
+    reefsLayer: string;
     viewState: viewState;
     setViewState: React.Dispatch<React.SetStateAction<viewState>>;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState }) => {
-  return (
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer }) => {
+    return (
     <ReactMapGL
       {...viewState}
       mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || ''}
@@ -36,7 +40,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
-        {pointData && (
         <Source type="geojson" data={pointLayer}>
           <Layer
             id="point"
@@ -47,7 +50,43 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
-      )}
+        <Source type="geojson" data={portsPointLayer}>
+          <Layer
+            id="ports"
+            type="circle"
+            paint={{
+              'circle-color': '#4169E1',
+              'circle-radius': 8,
+            }}
+          />
+        </Source>
+        <Source type="geojson" data={lakesLayer}>
+          <Layer
+            id="lakes"
+            type="line"
+            paint={{
+              'line-color': '#0F52BA',
+            }}
+          />
+        </Source>
+        <Source type="geojson" data={reefsLayer}>
+          <Layer
+            id="reefs"
+            type="line"
+            paint={{
+              'line-color': '#008000',
+            }}
+          />
+        </Source>
+        <Source type="geojson" data={coastLinesLayer}>
+          <Layer
+            id="coastline"
+            type="line"
+            paint={{
+              'line-color': '#9ACD32',
+            }}
+          />
+        </Source>
     </ReactMapGL>
   );
 };

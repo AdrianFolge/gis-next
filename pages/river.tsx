@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from 'react'
 import MapComponent from '../components/mapComponentRiver'
 import * as turf from '@turf/turf';
+import Slider from '@mui/material/Slider';
 
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
 const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_geography_regions_points.geojson"
-const fireEffect = 0;
+const pointsOfPorts = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson"
+const coastlines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_coastline.geojson"
+const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_lakes.geojson"
+const reefs = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_reefs.geojson"
+
 function river() {
     const [sliderMinValue, setSliderMinValue] = useState(0);
     const [sliderMaxValue, setSliderMaxValue] = useState(0)
     const [pointDataWithDistance, setPointDataWithDistance] = useState(null);
+    const [pointDataWithDistanceManipulated, setPointDataWithDistanceManipulated] = useState(null);
     const [pointData, setPointData] = useState(null);
     const [lineData, setLineData] = useState(null);
+    const [portsData, setPortsData] = useState(null)
+    const [coastlinesData, setCoastlinesData] = useState(null);
+    const [lakesData, setLakesData] = useState(null);
+    const [reefsData, setReefsData] = useState(null)
+    const [value, setValue] = useState(0);
+    const handleSliderChange = (event, newValue) => {
+      setValue(newValue);
+    };
     const [viewState, setViewState] = useState({
       latitude: 0,
       longitude: 0,
@@ -20,17 +34,43 @@ function river() {
     useEffect(() => {
       const pointLayerURL = pointsOfCities;
       const lineLayerURL = riverLines;
-  
+      const portPointsURL = pointsOfPorts
+      const coastlinesURL = coastlines;
+      const lakesURL = lakes;
+      const reefsURL = reefs;
       fetch(pointLayerURL)
         .then(response => response.json())
         .then(geojson => {
-          setPointData(geojson);
+            setPointData(geojson);
         });
   
       fetch(lineLayerURL)
         .then(response => response.json())
         .then(geojson => {
           setLineData(geojson);
+        });
+
+        fetch(portPointsURL)
+        .then(response => response.json())
+        .then(geojson => {
+          setPortsData(geojson);
+        });
+        fetch(coastlinesURL)
+        .then(response => response.json())
+        .then(geojson => {
+            setCoastlinesData(geojson);
+        });
+  
+      fetch(lakesURL)
+        .then(response => response.json())
+        .then(geojson => {
+          setLakesData(geojson);
+        });
+
+        fetch(reefsURL)
+        .then(response => response.json())
+        .then(geojson => {
+          setReefsData(geojson);
         });
     }, []);
 
@@ -45,10 +85,10 @@ function river() {
         return minDistance;
       };
       const calculateDistancesToNearestLines = () => {
+        console.log(pointData)
         if (!pointData || !lineData) {
           return ("HH");
         }
-      
         const pointFeaturesWithDistances = pointData.features.map(point => {
           const pointCoordinates = point.geometry.coordinates;
           const pointCorrect = {
@@ -73,25 +113,41 @@ function river() {
         };
         
         setPointDataWithDistance(updatedPointData);
+        setPointDataWithDistanceManipulated(updatedPointData)
         const distanceValues = []
         updatedPointData.features.forEach(point => {
             distanceValues.push(point.properties.nearestLineDistance)
         })
-        console.log(Math.max(...distanceValues))
-      };
-  useEffect(() => {
-    calculateDistancesToNearestLines();
-  }, [pointData]);
+        setSliderMaxValue(Math.max(...distanceValues))
+        setSliderMinValue(Math.min(...distanceValues))
+        };
+        useEffect(() => {
+        if (pointData && lineData) {
+            console.log(pointData);
+            calculateDistancesToNearestLines();
+        }
+        }, [pointData, lineData]);
+        useEffect(() => {
+            if (pointData && lineData) {
+            const filteredElements = pointDataWithDistance.features.filter(element => {
+                return element.properties.nearestLineDistance < value;
+              });
+              const filteredFeatureCollection = {
+                type: 'FeatureCollection',
+                features: filteredElements,
+              };
+            setPointDataWithDistanceManipulated(filteredFeatureCollection)}
+        }, [value, pointDataWithDistance])
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      <div className="h-screen w-1/4 bg-gray-800 fixed top-0 left-0 flex flex-col justify-between z-10">
-        <div className="p-4">
+      <div className="h-screen w-1/4 bg-gray-800 fixed top-1/2 left-0 flex flex-col justify-between z-10">
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <Slider defaultValue={sliderMaxValue} min={sliderMinValue} max={sliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleSliderChange}/>
           {/* Add your navbar items/icons here */}
           <div className="my-2 text-white">
             <i className="fas fa-home"></i>
           </div>
-          <div className="my-2 text-white">
-            <i className="fas fa-search"></i>
+          <div className="my-2 text-white w-1/2 h-1/2">
           </div>
           {/* Add more items/icons as needed */}
         </div>
@@ -102,7 +158,7 @@ function river() {
           </div>
         </div>
       </div>
-        <MapComponent pointLayer={pointDataWithDistance} lineLayer={lineData} viewState={viewState} setViewState={setViewState}/>
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData}/>
     </div>
   )
 }

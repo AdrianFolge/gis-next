@@ -73,3 +73,7 @@ export const getTopThreeCountries = (countryPoints: CountryPoints): Array<{ coun
   }));
 };
 
+export function ElementList({ elements, filterValue }) {
+  const filteredElements = elements.filter(element => {
+    return element.properties.nearestLineDistance < filterValue;
+  })};
