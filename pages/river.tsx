@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import MapComponent from '../components/mapComponentRiver'
-import * as turf from '@turf/turf';
 import Slider from '@mui/material/Slider';
+import { calculateDistancesToNearestLine } from '../helpers/helperFunctions';
 
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
 const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_geography_regions_points.geojson"
@@ -11,8 +11,14 @@ const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_l
 const reefs = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_reefs.geojson"
 
 function river() {
-    const [sliderMinValue, setSliderMinValue] = useState(0);
-    const [sliderMaxValue, setSliderMaxValue] = useState(0)
+    const [riverSliderMinValue, setRiverSliderMinValue] = useState(0);
+    const [riverSliderMaxValue, setRiverSliderMaxValue] = useState(0)
+    const [riverSliderValue, setRiverSliderValue] = useState(0);
+
+    const [coastSliderMinValue, setCoastSliderMinValue] = useState(0);
+    const [coastSliderMaxValue, setCoastSliderMaxValue] = useState(0)
+    const [coastSliderValue, setCoastSliderValue] = useState(0);
+
     const [pointDataWithDistance, setPointDataWithDistance] = useState(null);
     const [pointDataWithDistanceManipulated, setPointDataWithDistanceManipulated] = useState(null);
     const [pointData, setPointData] = useState(null);
@@ -21,10 +27,12 @@ function river() {
     const [coastlinesData, setCoastlinesData] = useState(null);
     const [lakesData, setLakesData] = useState(null);
     const [reefsData, setReefsData] = useState(null)
-    const [value, setValue] = useState(0);
-    const handleSliderChange = (event, newValue) => {
-      setValue(newValue);
+    const handleRiverSliderChange = (event, newValue) => {
+      setRiverSliderValue(newValue);
     };
+    const handleCoastSliderChange = (event, newValue) => {
+        setCoastSliderValue(newValue);
+      };
     const [viewState, setViewState] = useState({
       latitude: 0,
       longitude: 0,
@@ -74,76 +82,37 @@ function river() {
         });
     }, []);
 
-    const findNearestLineDistance = (point, lines) => {
-        let minDistance = Number.MAX_VALUE;
-        
-        lines.features.forEach(line => {
-          const distance = turf.pointToLineDistance(point, line);
-          minDistance = Math.min(minDistance, distance);
-        });
-    
-        return minDistance;
-      };
-      const calculateDistancesToNearestLines = () => {
-        console.log(pointData)
-        if (!pointData || !lineData) {
-          return ("HH");
-        }
-        const pointFeaturesWithDistances = pointData.features.map(point => {
-          const pointCoordinates = point.geometry.coordinates;
-          const pointCorrect = {
-            type: 'Point',
-            coordinates: pointCoordinates,
-          };
-          const nearestLineDistance = findNearestLineDistance(pointCorrect, lineData);
-          console.log("Point:", pointCoordinates);
-          console.log("Distance to nearest line:", nearestLineDistance);
-          return {
-            ...point,
-            properties: {
-              ...point.properties,
-              nearestLineDistance: nearestLineDistance,
-            },
-          };
-        });
-      
-        const updatedPointData = {
-          ...pointData,
-          features: pointFeaturesWithDistances,
-        };
-        
-        setPointDataWithDistance(updatedPointData);
-        setPointDataWithDistanceManipulated(updatedPointData)
-        const distanceValues = []
-        updatedPointData.features.forEach(point => {
-            distanceValues.push(point.properties.nearestLineDistance)
-        })
-        setSliderMaxValue(Math.max(...distanceValues))
-        setSliderMinValue(Math.min(...distanceValues))
-        };
         useEffect(() => {
         if (pointData && lineData) {
-            console.log(pointData);
-            calculateDistancesToNearestLines();
+            calculateDistancesToNearestLine({pointData, lineData, setPointData,setPointDataWithDistance, setPointDataWithDistanceManipulated,setSliderMinValue: setRiverSliderMinValue, setSliderMaxValue: setRiverSliderMaxValue,propertyName: "nearestRiverDistance"});
+            calculateDistancesToNearestLine({pointData, lineData: coastlinesData, setPointData,setPointDataWithDistance, setPointDataWithDistanceManipulated, setSliderMinValue: setCoastSliderMinValue, setSliderMaxValue: setCoastSliderMaxValue, propertyName: "nearestCoastDistance"});
         }
-        }, [pointData, lineData]);
+        }, [lineData, coastlinesData]);
         useEffect(() => {
             if (pointData && lineData) {
-            const filteredElements = pointDataWithDistance.features.filter(element => {
-                return element.properties.nearestLineDistance < value;
+              const filteredElements = pointDataWithDistance.features.filter(element => {
+                return (
+                  element.properties.nearestRiverDistance < riverSliderValue &&
+                  element.properties.nearestCoastDistance < coastSliderValue
+                );
               });
+          
               const filteredFeatureCollection = {
                 type: 'FeatureCollection',
                 features: filteredElements,
               };
-            setPointDataWithDistanceManipulated(filteredFeatureCollection)}
-        }, [value, pointDataWithDistance])
+          
+              setPointDataWithDistanceManipulated(filteredFeatureCollection);
+            }
+          }, [riverSliderValue, coastSliderValue]);
+
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      <div className="h-screen w-1/4 bg-gray-800 fixed top-1/2 left-0 flex flex-col justify-between z-10">
-        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
-        <Slider defaultValue={sliderMaxValue} min={sliderMinValue} max={sliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleSliderChange}/>
-          {/* Add your navbar items/icons here */}
+      <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col justify-between z-10">
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 top-1/2">
+        <Slider defaultValue={riverSliderMaxValue} min={riverSliderMinValue} max={riverSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleRiverSliderChange}/>
+        <Slider defaultValue={coastSliderMaxValue} min={coastSliderMinValue} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
+          <p className='text-red'>{pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
           <div className="my-2 text-white">
             <i className="fas fa-home"></i>
           </div>

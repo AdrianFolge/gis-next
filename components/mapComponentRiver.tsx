@@ -1,6 +1,6 @@
 import React, { use, useEffect, useState } from 'react';
 import ReactMapGL, { Source, Layer } from 'react-map-gl';
-import * as turf from '@turf/turf';
+
 
 
 const lineData = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
@@ -24,6 +24,14 @@ interface MapComponentProps {
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer }) => {
+    const [blinkOpacity, setBlinkOpacity] = useState(0.8);
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setBlinkOpacity(prevOpacity => (prevOpacity === 0 ? 0.8 : 0)); // Toggle opacity
+      }, 3000); // Blink every 1 second
+  
+      return () => clearInterval(interval);
+    }, []);
     return (
     <ReactMapGL
       {...viewState}
@@ -45,9 +53,12 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             id="point"
             type="circle"
             paint={{
-              'circle-color': '#FF0000',
-              'circle-radius': 8,
-            }}
+                'circle-radius': 10,
+                'circle-color': 'red',
+                'circle-opacity': blinkOpacity, // Toggle opacity based on blink state
+                'circle-stroke-width': 2,
+                'circle-stroke-color': 'red',
+              }}
           />
         </Source>
         <Source type="geojson" data={portsPointLayer}>
