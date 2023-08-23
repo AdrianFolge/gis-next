@@ -75,9 +75,10 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
         <Source type="geojson" data={lakesLayer}>
           <Layer
             id="lakes"
-            type="line"
+            type="fill"
             paint={{
-              'line-color': '#0F52BA',
+              'fill-color': '#0F52BA',
+              'fill-opacity': 0.6,
             }}
           />
         </Source>

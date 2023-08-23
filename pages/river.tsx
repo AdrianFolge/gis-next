@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import MapComponent from '../components/mapComponentRiver'
 import Slider from '@mui/material/Slider';
-import { calculateDistancesToNearestLine } from '../helpers/helperFunctions';
+import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon } from '../helpers/helperFunctions';
 
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
 const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_geography_regions_points.geojson"
@@ -11,17 +11,20 @@ const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_l
 const reefs = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_reefs.geojson"
 
 function river() {
-    const [riverSliderMinValue, setRiverSliderMinValue] = useState(0);
     const [riverSliderMaxValue, setRiverSliderMaxValue] = useState(0)
     const [riverSliderValue, setRiverSliderValue] = useState(0);
 
-    const [coastSliderMinValue, setCoastSliderMinValue] = useState(0);
     const [coastSliderMaxValue, setCoastSliderMaxValue] = useState(0)
     const [coastSliderValue, setCoastSliderValue] = useState(0);
 
-    const [reefsSliderMinValue, setReefsSliderMinValue] = useState(0);
     const [reefsSliderMaxValue, setReefsSliderMaxValue] = useState(0)
     const [reefsSliderValue, setReefsSliderValue] = useState(0);
+
+    const [portsSliderMaxValue, setPortsSliderMaxValue] = useState(0)
+    const [portsSliderValue, setPortsSliderValue] = useState(0);
+
+    const [lakesSliderMaxValue, setLakesSliderMaxValue] = useState(0)
+    const [lakesSliderValue, setLakesSliderValue] = useState(0);
 
     const [pointDataWithDistance, setPointDataWithDistance] = useState(null);
     const [pointDataWithDistanceManipulated, setPointDataWithDistanceManipulated] = useState(null);
@@ -41,7 +44,12 @@ function river() {
     const handleReefsSliderChange = (event, newValue) => {
         setReefsSliderValue(newValue);
     };
-
+    const handlePortsSliderChange = (event, newValue) => {
+        setPortsSliderValue(newValue);
+    };
+    const handleLakesSliderChange = (event, newValue) => {
+        setLakesSliderValue(newValue);
+    };
 
     const [viewState, setViewState] = useState({
       latitude: 0,
@@ -97,24 +105,33 @@ function river() {
           const arrayReefsDistances = calculateDistancesToNearestLine({
             pointData,
             lineData: reefsData,
-            setSliderMinValue: setReefsSliderMinValue,
             setSliderMaxValue: setReefsSliderMaxValue,
             propertyName: "nearestReefsDistance"
         });
             const arrayCoastDistances = calculateDistancesToNearestLine({
               pointData,
               lineData: coastlinesData,
-              setSliderMinValue: setCoastSliderMinValue,
               setSliderMaxValue: setCoastSliderMaxValue,
               propertyName: "nearestCoastDistance"
         });
              const arrayRiverDistances = calculateDistancesToNearestLine({
               pointData,
               lineData,
-              setSliderMinValue: setRiverSliderMinValue,
               setSliderMaxValue: setRiverSliderMaxValue,
               propertyName: "nearestRiverDistance"
-             })
+        });
+            const arrayPortsDistances = calculateDistancesToNearestPoint({
+                pointData,
+                referenceData: portsData,
+                setSliderMaxValue: setLakesSliderMaxValue,
+                propertyName: "nearestPortDistance"
+        });
+        const arrayLakesDistances = calculateDistancesToNearestPointPolygon({
+            pointData,
+            polygonData: lakesData,
+            setSliderMaxValue: setPortsSliderMaxValue,
+            propertyName: "nearestLakeDistance"
+        });
              const manipulatedDataWithDistances = {
                 type: "FeatureCollection",
                 features: pointData.features.map((point, index) => ({
@@ -123,13 +140,14 @@ function river() {
                     ...point.properties,
                     nearestReefsDistance: arrayReefsDistances[index],
                     nearestCoastDistance: arrayCoastDistances[index],
-                    nearestRiverDistance: arrayRiverDistances[index]
+                    nearestRiverDistance: arrayRiverDistances[index],
+                    nearestPortDistance: arrayPortsDistances[index],
+                    nearestLakeDistance: arrayLakesDistances[index]
                   }
                 }))
               };
               setPointDataWithDistance(manipulatedDataWithDistances)
               setPointDataWithDistanceManipulated(manipulatedDataWithDistances)
-        console.log(arrayReefsDistances.length, arrayRiverDistances.length, arrayCoastDistances.length)
         }
       }, [lineData, coastlinesData, reefsData]);
         useEffect(() => {
@@ -138,7 +156,9 @@ function river() {
                 return (
                   element.properties.nearestRiverDistance < riverSliderValue &&
                   element.properties.nearestCoastDistance < coastSliderValue && 
-                  element.properties.nearestReefsDistance < reefsSliderValue
+                  element.properties.nearestReefsDistance < reefsSliderValue &&
+                  element.properties.nearestPortDistance < portsSliderValue &&
+                  element.properties.nearestLakeDistance < lakesSliderValue
                 );
               });
           
@@ -149,15 +169,17 @@ function river() {
           
               setPointDataWithDistanceManipulated(filteredFeatureCollection);
             }
-          }, [riverSliderValue, coastSliderValue, reefsSliderValue]);
+          }, [riverSliderValue, coastSliderValue, reefsSliderValue, portsSliderValue, lakesSliderValue]);
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
       <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col justify-between z-10">
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 top-1/2">
-        <Slider defaultValue={riverSliderMaxValue} min={riverSliderMinValue} max={riverSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleRiverSliderChange}/>
-        <Slider defaultValue={coastSliderMaxValue} min={coastSliderMinValue} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
-        <Slider defaultValue={reefsSliderMaxValue} min={reefsSliderMinValue} max={reefsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleReefsSliderChange}/>
+        <Slider min={0} max={riverSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleRiverSliderChange}/>
+        <Slider  min={0} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
+        <Slider  min={0} max={reefsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleReefsSliderChange}/>
+        <Slider min={0} max={portsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handlePortsSliderChange}/>
+        <Slider min={0} max={lakesSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleLakesSliderChange}/>
         <p className='text-red'>{pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
           <div className="my-2 text-white">
             <i className="fas fa-home"></i>
