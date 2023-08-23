@@ -24,6 +24,7 @@ interface MapComponentProps {
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer }) => {
+    console.log(pointLayer)
     const [blinkOpacity, setBlinkOpacity] = useState(0.8);
     useEffect(() => {
       const interval = setInterval(() => {

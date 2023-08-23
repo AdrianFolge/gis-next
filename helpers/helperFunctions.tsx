@@ -96,9 +96,6 @@ const findNearestLineDistance = (point, lines) => {
 interface CalculateDistancesToNearestLineProps {
   pointData: FeatureCollection<Point>,
   lineData: FeatureCollection,
-  setPointData: React.Dispatch<React.SetStateAction<FeatureCollection<Point>>>,
-  setPointDataWithDistance: React.Dispatch<React.SetStateAction<FeatureCollection<Point>>>,
-  setPointDataWithDistanceManipulated: React.Dispatch<React.SetStateAction<FeatureCollection<Point>>>,
   setSliderMinValue: React.Dispatch<React.SetStateAction<number>>,
   setSliderMaxValue: React.Dispatch<React.SetStateAction<number>>,
   propertyName: string,
@@ -106,10 +103,11 @@ interface CalculateDistancesToNearestLineProps {
 
 
 export const calculateDistancesToNearestLine = ({
-  pointData, lineData, setPointData,setPointDataWithDistance, setPointDataWithDistanceManipulated, setSliderMinValue, setSliderMaxValue, propertyName
-}: CalculateDistancesToNearestLineProps) => {
+  pointData, lineData, setSliderMinValue, setSliderMaxValue, propertyName
+}: CalculateDistancesToNearestLineProps): Array<number> => {
+  const nearestLineDistanceArray = []
   if (!pointData || !lineData) {
-    return("Feil med pointData/lineData")
+    return [0,0];
   }
   const pointFeaturesWithDistances = pointData.features.map(point => {
     const pointCoordinates = point.geometry.coordinates;
@@ -118,8 +116,7 @@ export const calculateDistancesToNearestLine = ({
       coordinates: pointCoordinates,
     };
     const nearestLineDistance = findNearestLineDistance(pointCorrect, lineData);
-    console.log("Point:", pointCoordinates);
-    console.log("Distance to nearest line:", nearestLineDistance);
+    nearestLineDistanceArray.push(nearestLineDistance)
     return {
       ...point,
       properties: {
@@ -129,16 +126,8 @@ export const calculateDistancesToNearestLine = ({
     };
   });
 
-  const updatedPointData: FeatureCollection<Point> = {
-    ...pointData,
-    features: pointFeaturesWithDistances,
-  };
-  console.log(propertyName, ":",updatedPointData)
-  setPointData(updatedPointData)
-  setPointDataWithDistance(updatedPointData);
-  setPointDataWithDistanceManipulated(updatedPointData);
-
   const distanceValues = pointFeaturesWithDistances.map(point => point.properties[propertyName]);
   setSliderMaxValue(Math.max(...distanceValues));
   setSliderMinValue(Math.min(...distanceValues));
+  return nearestLineDistanceArray
 };

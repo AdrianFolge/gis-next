@@ -19,6 +19,10 @@ function river() {
     const [coastSliderMaxValue, setCoastSliderMaxValue] = useState(0)
     const [coastSliderValue, setCoastSliderValue] = useState(0);
 
+    const [reefsSliderMinValue, setReefsSliderMinValue] = useState(0);
+    const [reefsSliderMaxValue, setReefsSliderMaxValue] = useState(0)
+    const [reefsSliderValue, setReefsSliderValue] = useState(0);
+
     const [pointDataWithDistance, setPointDataWithDistance] = useState(null);
     const [pointDataWithDistanceManipulated, setPointDataWithDistanceManipulated] = useState(null);
     const [pointData, setPointData] = useState(null);
@@ -27,12 +31,18 @@ function river() {
     const [coastlinesData, setCoastlinesData] = useState(null);
     const [lakesData, setLakesData] = useState(null);
     const [reefsData, setReefsData] = useState(null)
+    
     const handleRiverSliderChange = (event, newValue) => {
       setRiverSliderValue(newValue);
     };
     const handleCoastSliderChange = (event, newValue) => {
         setCoastSliderValue(newValue);
-      };
+    };
+    const handleReefsSliderChange = (event, newValue) => {
+        setReefsSliderValue(newValue);
+    };
+
+
     const [viewState, setViewState] = useState({
       latitude: 0,
       longitude: 0,
@@ -82,18 +92,53 @@ function river() {
         });
     }, []);
 
-        useEffect(() => {
-        if (pointData && lineData) {
-            calculateDistancesToNearestLine({pointData, lineData, setPointData,setPointDataWithDistance, setPointDataWithDistanceManipulated,setSliderMinValue: setRiverSliderMinValue, setSliderMaxValue: setRiverSliderMaxValue,propertyName: "nearestRiverDistance"});
-            calculateDistancesToNearestLine({pointData, lineData: coastlinesData, setPointData,setPointDataWithDistance, setPointDataWithDistanceManipulated, setSliderMinValue: setCoastSliderMinValue, setSliderMaxValue: setCoastSliderMaxValue, propertyName: "nearestCoastDistance"});
+    useEffect(() => {
+        if (pointData && lineData && coastlinesData) {
+          const arrayReefsDistances = calculateDistancesToNearestLine({
+            pointData,
+            lineData: reefsData,
+            setSliderMinValue: setReefsSliderMinValue,
+            setSliderMaxValue: setReefsSliderMaxValue,
+            propertyName: "nearestReefsDistance"
+        });
+            const arrayCoastDistances = calculateDistancesToNearestLine({
+              pointData,
+              lineData: coastlinesData,
+              setSliderMinValue: setCoastSliderMinValue,
+              setSliderMaxValue: setCoastSliderMaxValue,
+              propertyName: "nearestCoastDistance"
+        });
+             const arrayRiverDistances = calculateDistancesToNearestLine({
+              pointData,
+              lineData,
+              setSliderMinValue: setRiverSliderMinValue,
+              setSliderMaxValue: setRiverSliderMaxValue,
+              propertyName: "nearestRiverDistance"
+             })
+             const manipulatedDataWithDistances = {
+                type: "FeatureCollection",
+                features: pointData.features.map((point, index) => ({
+                  ...point,
+                  properties: {
+                    ...point.properties,
+                    nearestReefsDistance: arrayReefsDistances[index],
+                    nearestCoastDistance: arrayCoastDistances[index],
+                    nearestRiverDistance: arrayRiverDistances[index]
+                  }
+                }))
+              };
+              setPointDataWithDistance(manipulatedDataWithDistances)
+              setPointDataWithDistanceManipulated(manipulatedDataWithDistances)
+        console.log(arrayReefsDistances.length, arrayRiverDistances.length, arrayCoastDistances.length)
         }
-        }, [lineData, coastlinesData]);
+      }, [lineData, coastlinesData, reefsData]);
         useEffect(() => {
             if (pointData && lineData) {
               const filteredElements = pointDataWithDistance.features.filter(element => {
                 return (
                   element.properties.nearestRiverDistance < riverSliderValue &&
-                  element.properties.nearestCoastDistance < coastSliderValue
+                  element.properties.nearestCoastDistance < coastSliderValue && 
+                  element.properties.nearestReefsDistance < reefsSliderValue
                 );
               });
           
@@ -104,7 +149,7 @@ function river() {
           
               setPointDataWithDistanceManipulated(filteredFeatureCollection);
             }
-          }, [riverSliderValue, coastSliderValue]);
+          }, [riverSliderValue, coastSliderValue, reefsSliderValue]);
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
@@ -112,15 +157,14 @@ function river() {
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 top-1/2">
         <Slider defaultValue={riverSliderMaxValue} min={riverSliderMinValue} max={riverSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleRiverSliderChange}/>
         <Slider defaultValue={coastSliderMaxValue} min={coastSliderMinValue} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
-          <p className='text-red'>{pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
+        <Slider defaultValue={reefsSliderMaxValue} min={reefsSliderMinValue} max={reefsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleReefsSliderChange}/>
+        <p className='text-red'>{pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
           <div className="my-2 text-white">
             <i className="fas fa-home"></i>
           </div>
           <div className="my-2 text-white w-1/2 h-1/2">
           </div>
-          {/* Add more items/icons as needed */}
         </div>
-        {/* You can add a logout or other bottom items here */}
         <div className="p-4">
           <div className="my-2 text-white">
             <i className="fas fa-sign-out-alt"></i>
