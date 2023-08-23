@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import MapComponent from '../components/mapComponentRiver'
 import Slider from '@mui/material/Slider';
 import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon } from '../helpers/helperFunctions';
-
+import InfoCard from '../components/card';
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
 const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_geography_regions_points.geojson"
 const pointsOfPorts = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson"
@@ -173,24 +173,38 @@ function river() {
 
   return (
     <div className="h-screen w-screen relative overflow-hidden">
-      <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col justify-between z-10">
-        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 top-1/2">
+      <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col  z-10">
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <h3 className='mx-auto text-center'>Distance from River</h3>
         <Slider min={0} max={riverSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleRiverSliderChange}/>
-        <Slider  min={0} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
-        <Slider  min={0} max={reefsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleReefsSliderChange}/>
-        <Slider min={0} max={portsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handlePortsSliderChange}/>
-        <Slider min={0} max={lakesSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleLakesSliderChange}/>
-        <p className='text-red'>{pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
-          <div className="my-2 text-white">
-            <i className="fas fa-home"></i>
-          </div>
-          <div className="my-2 text-white w-1/2 h-1/2">
-          </div>
         </div>
-        <div className="p-4">
-          <div className="my-2 text-white">
-            <i className="fas fa-sign-out-alt"></i>
-          </div>
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <h3 className='mx-auto text-center'>Distance from coast</h3>
+        <Slider  min={0} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
+        </div>
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <h3 className='mx-auto text-center'>Distance from reef</h3>
+        <Slider  min={0} max={reefsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleReefsSliderChange}/>
+        </div>
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <h3 className='mx-auto text-center'>Distance from port</h3>
+        <Slider min={0} max={portsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handlePortsSliderChange}/>
+        </div>
+        <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <h3 className='mx-auto text-center'>Distance from lake</h3>
+        <Slider min={0} max={lakesSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleLakesSliderChange}/>
+        </div>
+        <div className="justify-between items-center center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+            <p className='mx-auto text-center'>Points matching your description: {pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
+        </div>
+        <div className='m-4 overflow-y-auto'>
+            {pointDataWithDistanceManipulated && pointDataWithDistanceManipulated.features && pointDataWithDistanceManipulated.features.length > 0 ? (
+                pointDataWithDistanceManipulated.features.map(feature => (
+                    <InfoCard object={feature} />
+                ))
+                ) : (
+                <p>No matching features found.</p>
+                )}
         </div>
       </div>
         <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData}/>
