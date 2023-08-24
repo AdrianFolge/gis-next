@@ -1,5 +1,5 @@
 import Image from "next/image"
-function InfoCard({object}) {
+function InfoCard({object, onClick}) {
     const properties = object.properties
     const getImageSource = (region) => {
         switch (region) {
@@ -21,7 +21,7 @@ function InfoCard({object}) {
         }
       };
     return (
-        <div>
+        <div onClick={() => onClick()}>
             <div className="flex py-7 px-2 border-b cursor-pointer hover:opacity-60 hover:shadow-lg transition duration-200 ease-out first:border-t m-4">
                 <div className="relative w-40 md:h-4 md:w-80 flex-shrink-0 bg-slate-800">
                 <div className="relative h-24 w-40 md:h-52 md:w-80 flex-shrink-0 ">

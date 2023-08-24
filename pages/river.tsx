@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import MapComponent from '../components/mapComponentRiver'
+import { MapRef } from "react-map-gl"
 import Slider from '@mui/material/Slider';
 import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon } from '../helpers/helperFunctions';
 import InfoCard from '../components/card';
@@ -9,6 +10,7 @@ const pointsOfPorts = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/
 const coastlines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_coastline.geojson"
 const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_lakes.geojson"
 const reefs = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_reefs.geojson"
+const airport = "https://raw.githubusercontent.com/AdrianFolge/gis-next/main/data/osm-world-airports%40babel.geojson"
 
 function river() {
     const [riverSliderMaxValue, setRiverSliderMaxValue] = useState(0)
@@ -34,6 +36,14 @@ function river() {
     const [coastlinesData, setCoastlinesData] = useState(null);
     const [lakesData, setLakesData] = useState(null);
     const [reefsData, setReefsData] = useState(null)
+    const [airportData, setAirportData] = useState(null)
+
+    const [infoCardClicked, setInfoCardClicked] = useState(true);
+
+    const handleUpperDivClick = () => {
+      setInfoCardClicked(!infoCardClicked);
+    };
+      
     
     const handleRiverSliderChange = (event, newValue) => {
       setRiverSliderValue(newValue);
@@ -56,7 +66,15 @@ function river() {
       longitude: 0,
       zoom: 10,
     });
-  
+    const mapReference = useRef<MapRef>()
+    const handleInfoCardClick = (latitude, longitude) => {
+        setViewState({
+            latitude: latitude,
+            longitude: longitude,
+            zoom: 8,
+        });
+        mapReference.current?.flyTo({center: [longitude,latitude], duration: 2000, zoom: 5});
+      };
     useEffect(() => {
       const pointLayerURL = pointsOfCities;
       const lineLayerURL = riverLines;
@@ -64,6 +82,7 @@ function river() {
       const coastlinesURL = coastlines;
       const lakesURL = lakes;
       const reefsURL = reefs;
+      const airportURL = airport
       fetch(pointLayerURL)
         .then(response => response.json())
         .then(geojson => {
@@ -97,6 +116,11 @@ function river() {
         .then(response => response.json())
         .then(geojson => {
           setReefsData(geojson);
+        });
+        fetch(airportURL)
+        .then(response => response.json())
+        .then(geojson => {
+          setAirportData(geojson);
         });
     }, []);
 
@@ -200,14 +224,19 @@ function river() {
         <div className='m-4 overflow-y-auto'>
             {pointDataWithDistanceManipulated && pointDataWithDistanceManipulated.features && pointDataWithDistanceManipulated.features.length > 0 ? (
                 pointDataWithDistanceManipulated.features.map(feature => (
-                    <InfoCard object={feature} />
+                    <InfoCard object={feature} onClick={() => handleInfoCardClick(feature.properties.lat_y, feature.properties.long_x)}/>
                 ))
                 ) : (
                 <p>No matching features found.</p>
                 )}
         </div>
       </div>
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData}/>
+      {infoCardClicked && (
+      <div
+          className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black opacity-50 z-20"
+          onClick={handleUpperDivClick}
+        ></div> )}
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData}/>
     </div>
   )
 }
