@@ -39,12 +39,12 @@ function InfoCard({object, onClick}) {
                             )}</h4>
                     <div className="border-b w-10 pt-2"/>
                     <div className="justify-between items-end pt-5">
-                        <p className="pt-2 text-sm text-gray-500 flex-grow">Avstand til Kystlinje: {properties.nearestCoastDistance < 10 ? Math.ceil(properties.nearestCoastDistance * 10) / 10
-                            : Math.ceil(properties.nearestCoastDistance)} km</p>
+                        <p className="pt-2 text-sm text-gray-500 flex-grow">Avstand til Kystlinje: {properties.nearestCoastDistance.minDistance < 10 ? Math.ceil(properties.nearestCoastDistance.minDistance * 10) / 10
+                            : Math.ceil(properties.nearestCoastDistance.minDistance)} km</p>
                         <p className="pt-2 text-sm text-gray-500 flex-grow">
-                        Avstand til nærmeste elv: {properties.nearestRiverDistance < 10
-                            ? Math.ceil(properties.nearestRiverDistance * 10) / 10
-                            : Math.ceil(properties.nearestRiverDistance)} km
+                        Avstand til nærmeste elv: {properties.nearestRiverDistance.minDistance < 10
+                            ? Math.ceil(properties.nearestRiverDistance.minDistance * 10) / 10
+                            : Math.ceil(properties.nearestRiverDistance.minDistance)} km
                         </p>           
                         <p className="pt-2 text-sm text-gray-500 flex-grow">
                             Avstand til nærmeste innsjø: {properties.nearestLakeDistance < 10
@@ -52,9 +52,9 @@ function InfoCard({object, onClick}) {
                                 : Math.ceil(properties.nearestLakeDistance)} km
                         </p>
                         <p className="pt-2 text-sm text-gray-500 flex-grow">
-                            Avstand til nærmeste havn: {properties.nearestPortDistance < 10
-                                ? Math.ceil(properties.nearestPortDistance * 10) / 10
-                                : Math.ceil(properties.nearestPortDistance)} km
+                            Avstand til nærmeste havn: {properties.nearestPortDistance.minDistance < 10
+                                ? Math.ceil(properties.nearestPortDistance.minDistance * 10) / 10
+                                : Math.ceil(properties.nearestPortDistance.minDistance)} km
                         </p>
                     </div>
                 </div>
