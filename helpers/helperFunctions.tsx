@@ -1,3 +1,7 @@
+import * as turf from '@turf/turf';
+import { polygonToLine } from '@turf/polygon-to-line';
+import { FeatureCollection, Point } from 'geojson';
+import { useEffect } from 'react';
 export interface GeoJSONFeature {
     type: string;
     geometry: {
@@ -73,3 +77,204 @@ export const getTopThreeCountries = (countryPoints: CountryPoints): Array<{ coun
   }));
 };
 
+export function ElementList({ elements, filterValue }) {
+  const filteredElements = elements.filter(element => {
+    return element.properties.nearestLineDistance < filterValue;
+  })};
+
+
+const findNearestLineDistance = (point, lines) => {
+  let minDistance = Number.MAX_VALUE;
+  let nearestLineProperties = null
+  
+  lines.features.forEach(line => {
+    if (line.geometry.type !== "MultiLineString") {
+      const distance = turf.pointToLineDistance(point, line);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestLineProperties = line;
+        }
+    }
+  });
+  return {
+    minDistance: minDistance,
+    properties: nearestLineProperties
+  };
+};
+
+interface CalculateDistancesToNearestLineProps {
+  pointData: FeatureCollection<Point>,
+  lineData: FeatureCollection,
+  setSliderMaxValue: React.Dispatch<React.SetStateAction<number>>,
+  setSliderValue: React.Dispatch<React.SetStateAction<number>>
+  propertyName: string,
+}
+
+
+export const calculateDistancesToNearestLine = ({
+  pointData, lineData, setSliderMaxValue, setSliderValue,propertyName
+}: CalculateDistancesToNearestLineProps): pointDistanceAndProperties[]=> {
+  const nearestLineDistanceArray = []
+  if (!pointData || !lineData) {
+    return;
+  }
+  const pointFeaturesWithDistances = pointData.features.map(point => {
+    const pointCoordinates = point.geometry.coordinates;
+    const pointCorrect = {
+      type: 'Point',
+      coordinates: pointCoordinates,
+    };
+    const nearestLineDistance = findNearestLineDistance(pointCorrect, lineData);
+    nearestLineDistanceArray.push(nearestLineDistance)
+    return {
+      ...point,
+      properties: {
+        ...point.properties,
+        [propertyName]: nearestLineDistance.minDistance,
+      },
+    };
+  });
+
+  const distanceValues = pointFeaturesWithDistances.map(point => point.properties[propertyName]);
+  setSliderMaxValue(Math.ceil(Math.max(...distanceValues)));
+  setSliderValue(Math.ceil(Math.max(...distanceValues)));
+  return nearestLineDistanceArray
+};
+
+const findNearestPointDistance = (point, points) => {
+  let minDistance = Number.MAX_VALUE;
+  let nearestPointProperties = null;
+
+  points.features.forEach(otherPoint => {
+    const distance = turf.distance(point, otherPoint);
+    
+    if (distance < minDistance) {
+      minDistance = distance;
+      nearestPointProperties = otherPoint;
+    }
+  });
+  return {
+    minDistance: minDistance,
+    properties: nearestPointProperties
+  };
+};
+
+
+
+
+
+
+interface CalculateDistancesToNearestPointProps {
+  pointData: FeatureCollection<Point>;
+  referenceData: FeatureCollection<Point>;
+  setSliderMaxValue: React.Dispatch<React.SetStateAction<number>>;
+  setSliderValue: React.Dispatch<React.SetStateAction<number>>;
+  propertyName: string;
+}
+
+type pointDistanceAndProperties = {
+  minDistance: number;
+  properties: {
+    name: string;
+    natlscale: number;
+    scalerank: number;
+    website: string | null;
+  };
+}
+
+export const calculateDistancesToNearestPoint = ({
+  pointData,
+  referenceData,
+  setSliderMaxValue,
+  setSliderValue,
+  propertyName,
+}: CalculateDistancesToNearestPointProps): pointDistanceAndProperties[] => {
+  const nearestPointDistanceArray: pointDistanceAndProperties[] = [];
+
+  if (!pointData || !referenceData) {
+    return [];
+  }
+
+  const pointFeaturesWithDistances = pointData.features.map(point => {
+    const pointCoordinates = point.geometry.coordinates;
+    const pointCorrect = {
+      type: "Point",
+      coordinates: pointCoordinates,
+    };
+    const nearestPointDistance = findNearestPointDistance(pointCorrect, referenceData);
+    nearestPointDistanceArray.push(nearestPointDistance);
+
+    return {
+      ...point,
+      properties: {
+        ...point.properties,
+        [propertyName]: nearestPointDistance.minDistance,
+      },
+    };
+  });
+
+  const distanceValues = pointFeaturesWithDistances.map(point => point.properties[propertyName]);
+  setSliderMaxValue(Math.ceil(Math.max(...distanceValues)));
+  setSliderValue(Math.ceil(Math.max(...distanceValues)));
+  return nearestPointDistanceArray;
+};
+
+const findNearestPointPolygonDistance = (point, polygons: FeatureCollection): number => {
+  let minDistance = Number.MAX_VALUE;
+  polygons.features.forEach(polygon => {
+    if(polygon.geometry.type === "Polygon"){
+      const lineGeometry = polygonToLine(polygon.geometry);
+      if(lineGeometry.geometry.type === "LineString"){
+        const distance = turf.pointToLineDistance(point, lineGeometry.geometry);
+        minDistance = Math.min(minDistance, distance);
+      }
+    }
+  });
+
+  return minDistance;
+};
+
+interface CalculateDistancesToNearestPointPolygonProps {
+  pointData: FeatureCollection<Point>;
+  polygonData: FeatureCollection;
+  setSliderMaxValue: React.Dispatch<React.SetStateAction<number>>;
+  setSliderValue: React.Dispatch<React.SetStateAction<number>>;
+  propertyName: string;
+}
+
+export const calculateDistancesToNearestPointPolygon = ({
+  pointData,
+  polygonData,
+  setSliderMaxValue,
+  setSliderValue,
+  propertyName,
+}: CalculateDistancesToNearestPointPolygonProps): number[] => {
+  const nearestPointPolygonDistanceArray: number[] = [];
+
+  if (!pointData || !polygonData) {
+    return [];
+  }
+
+  const pointFeaturesWithDistances = pointData.features.map(point => {
+    const pointCoordinates = point.geometry.coordinates;
+    const pointCorrect = {
+      type: 'Point',
+      coordinates: pointCoordinates,
+    };
+    const nearestPointPolygonDistance = findNearestPointPolygonDistance(pointCorrect, polygonData);
+    nearestPointPolygonDistanceArray.push(nearestPointPolygonDistance);
+
+    return {
+      ...point,
+      properties: {
+        ...point.properties,
+        [propertyName]: nearestPointPolygonDistance,
+      },
+    };
+  });
+
+  const distanceValues = pointFeaturesWithDistances.map(point => point.properties[propertyName]);
+  setSliderMaxValue(Math.ceil(Math.max(...distanceValues)));
+  setSliderValue(Math.ceil(Math.max(...distanceValues)));
+  return nearestPointPolygonDistanceArray;
+};
