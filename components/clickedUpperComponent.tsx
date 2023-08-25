@@ -9,6 +9,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import { createApi } from 'unsplash-js';
 import axios from 'axios';
 import Smallcard from './smallCard';
+import MediumCard from './mediumCard';
 
 const unsplash = createApi({
   accessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY,
@@ -25,6 +26,9 @@ function formatCountryName(countryName) {
 
 function ClickedUpperComponent(object) {
     const [images, setImages] = useState([]);
+    const [firstImages, setFirstImages] = useState([])
+    const [secondImages, setSecondImages] = useState([])
+    const [thirdImages, setThirdImages] = useState([])
     const [weather, setWeather] = useState(null)
     if (!object ||  !object.object ||  !object.object.nearestAirportDistance) {
       return (
@@ -33,7 +37,9 @@ function ClickedUpperComponent(object) {
         </div>
       );
     }
-  
+    const firstImage = object.object.nearestAttractions.features[0].properties.name
+    const secondImage = object.object.nearestAttractions.features[1].properties.name
+    const thirdImage = object.object.nearestAttractions.features[2].properties.name
     const airport = object.object.nearestAirportDistance;
     const obj = object.object
     useEffect(() => {
@@ -53,10 +59,32 @@ function ClickedUpperComponent(object) {
           setImages(result.response.results);
         }
       });
+      unsplash.search.getPhotos({ query: firstImage, perPage: 1 }).then(result => {
+        if (result.errors) {
+          console.error(result.errors);
+        } else {
+          setFirstImages(result.response.results);
+        }
+      });
+      unsplash.search.getPhotos({ query: secondImage, perPage: 1 }).then(result => {
+        if (result.errors) {
+          console.error(result.errors);
+        } else {
+          setSecondImages(result.response.results);
+        }
+      });
+      unsplash.search.getPhotos({ query: thirdImage, perPage: 1 }).then(result => {
+        if (result.errors) {
+          console.error(result.errors);
+        } else {
+          setThirdImages(result.response.results);
+        }
+      });
     }, [object]);
     const formattedCountryName = formatCountryName(obj.adm0name);
+    const arrayOfImages = [firstImages, secondImages, thirdImages]
     return (
-      <div className='w-full h-full grid grid-cols-3 justify-between gap-6 bg-white'>
+      <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white'>
         <div className='h-full items-center flex justify-center'> 
           <div className="relative h-full w-full flex-shrink-0">
             {images.length > 0 ? (
@@ -90,6 +118,11 @@ function ClickedUpperComponent(object) {
             ))}
           </div>
           )}
+        </div>
+        <div className='grid grid-cols-1 md:grid-rows-3 gap-4 justify-center ml-20'>
+          {object.object.nearestAttractions.features.map((feature, index) => (
+            <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} />
+          ))}
         </div>
         <div className='h-full items-center justify-center grid grid-rows-5'> 
           <div className='flex gap-3'>

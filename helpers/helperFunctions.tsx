@@ -278,3 +278,35 @@ export const calculateDistancesToNearestPointPolygon = ({
   setSliderValue(Math.ceil(Math.max(...distanceValues)));
   return nearestPointPolygonDistanceArray;
 };
+
+export function findClosestAttractions(cityPoints, attractionPoints, numClosest) {
+  const closestAttractionsArray = [];
+
+  cityPoints.features.forEach(cityPoint => {
+    const cityCoordinates = cityPoint.geometry.coordinates;
+
+    // Calculate distances between the city point and all attraction points
+    const distances = attractionPoints.features.map(attractionPoint => {
+      const attractionCoordinates = attractionPoint.geometry.coordinates;
+      const distance = turf.distance(cityCoordinates, attractionCoordinates);
+      return { attraction: attractionPoint, distance };
+    });
+
+    // Sort attractions by distance
+    distances.sort((a, b) => a.distance - b.distance);
+
+    // Select the specified number of closest attractions
+    const closestNFeatures = distances.slice(1, numClosest+1).map(item => item.attraction);
+
+    // Create a FeatureCollection for the closest attractions of this city
+    const closestAttractions = {
+      type: 'FeatureCollection',
+      features: closestNFeatures
+    };
+
+    // Store the FeatureCollection in the array
+    closestAttractionsArray.push(closestAttractions);
+  });
+
+  return closestAttractionsArray;
+}

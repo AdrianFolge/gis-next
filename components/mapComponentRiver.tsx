@@ -1,13 +1,10 @@
-import { url } from 'inspector';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactMapGL, { Source, Layer, MapRef } from 'react-map-gl';
 interface viewState {
     latitude: number,
     longitude: number,
     zoom: number
 }
-
-
 interface MapComponentProps {
     pointLayer: string;
     lineLayer: string;
@@ -25,6 +22,7 @@ interface MapComponentProps {
     singleRiverFeature: string;
     singleReefFeature: string;
     singleCoastFeature: string;
+    threeAttractionsFeature: string;
     showPortsLayer: boolean;
     showCoastsLayer: boolean;
     showRiversLayer: boolean;
@@ -34,8 +32,8 @@ interface MapComponentProps {
 
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer }) => {
-    const [blinkOpacity, setBlinkOpacity] = useState(0.8);
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature }) => {
+  const [blinkOpacity, setBlinkOpacity] = useState(0.8);
     useEffect(() => {
       const interval = setInterval(() => {
         setBlinkOpacity(prevOpacity => (prevOpacity === 0 ? 0.8 : 0)); // Toggle opacity
@@ -155,6 +153,16 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               type="circle"
               paint={{
                 'circle-color': '#4169E1',
+                'circle-radius': 8,
+              }}
+            />
+        </Source>
+        <Source id="attractions-source" type="geojson" data={threeAttractionsFeature}>
+          <Layer
+              id="attractions"
+              type="circle"
+              paint={{
+                'circle-color': '#FFC0CB',
                 'circle-radius': 8,
               }}
             />
