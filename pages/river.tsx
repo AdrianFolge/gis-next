@@ -5,9 +5,10 @@ import Slider from '@mui/material/Slider';
 import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon } from '../helpers/helperFunctions';
 import InfoCard from '../components/card';
 import ClickedUpperComponent from '../components/clickedUpperComponent';
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
-const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_geography_regions_points.geojson"
+const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_populated_places_simple.geojson"
 const pointsOfPorts = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson"
 const coastlines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_coastline.geojson"
 const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_lakes.geojson"
@@ -50,7 +51,12 @@ function river() {
     const [singleRiverFeature, setSingleRiverFeature] = useState(null)
     const [singleCoastFeature, setSingleCoastFeature] = useState(null)
 
-    const [clickedLayerData, setClickedLayerData] = useState(null)
+    const[showRiversLayer, setShowRiversLayer] = useState(false);
+    const[showLakesLayer, setShowLakesLayer] = useState(false);
+    const[showPortsLayer, setShowPortsLayer] = useState(false);
+    const[showAirportsLayer, setShowAirportsLayer] = useState(false);
+    const[showReefsLayer, setShowReefsLayer] = useState(false);
+    const[showCoastsLayer, setShowCoastsLayer] = useState(false);
 
     const [airportObject, setAirportObject] = useState(null)
 
@@ -61,6 +67,24 @@ function river() {
       setSingleCityFeature(null)
     };
       
+    const handleShowRiversChange = () => {
+        setShowRiversLayer(prevValue => !prevValue);
+      };
+    const handleShowCoastsChange = () => {
+        setShowCoastsLayer(prevValue => !prevValue);
+    };
+    const handleShowAirportsChange = () => {
+        setShowAirportsLayer(prevValue => !prevValue);
+    };
+    const handleShowLakesChange = () => {
+        setShowLakesLayer(prevValue => !prevValue);
+    };
+    const handleShowPortsChange = () => {
+        setShowPortsLayer(prevValue => !prevValue);
+    };
+    const handleShowReefsChange = () => {
+        setShowReefsLayer(prevValue => !prevValue);
+    };
     
     const handleRiverSliderChange = (event, newValue) => {
       setRiverSliderValue(newValue);
@@ -85,6 +109,7 @@ function river() {
     });
     const mapReference = useRef<MapRef>()
     const handleInfoCardClick = (latitude, longitude, object) => {
+        console.log(object)
         setInfoCardClicked(true);
         const cityFeature = {
             type: 'Feature',
@@ -273,42 +298,76 @@ function river() {
     <div className="h-screen w-screen relative overflow-hidden">
       <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col  z-10">
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
-                <h3 className='mx-auto text-center'>Distance from River</h3>
+                <div className='flex justify-center items-center'>
+                <h3 className='mx-auto text-center'>Distanse fra elv</h3>
+                <FormControlLabel
+                    control={<Checkbox checked={showRiversLayer} onChange={handleShowRiversChange} />}
+                    label="Vis elver"
+                />
+                </div>
                 {riverSliderMaxValue > 0 && (
                     <Slider defaultValue={riverSliderMaxValue} min={0} max={riverSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleRiverSliderChange}/>
                 )}
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
-                <h3 className='mx-auto text-center'>Distance from coast</h3>
+                <div className='flex justify-center items-center'>
+                <h3 className='mx-auto text-center'>Distanse fra Kyst</h3>
+                <FormControlLabel
+                    control={<Checkbox checked={showCoastsLayer} onChange={handleShowCoastsChange} />}
+                    label="Vis kystlinje"
+                />
+                </div>
                 {coastSliderMaxValue > 0 && (
                     <Slider defaultValue={coastSliderMaxValue} min={0} max={coastSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleCoastSliderChange}/>
                 )}
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
-                <h3 className='mx-auto text-center'>Distance from reef</h3>
+                <div className='flex justify-center items-center'>
+                <h3 className='mx-auto text-center'>Distanse fra Koralrev</h3>
+                <FormControlLabel
+                    control={<Checkbox checked={showReefsLayer} onChange={handleShowReefsChange} />}
+                    label="Vis koralrev"
+                />
+                </div>
                 {reefsSliderMaxValue > 0 && (
                     <Slider defaultValue={reefsSliderMaxValue} min={0} max={reefsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleReefsSliderChange}/>
                 )}
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
-                <h3 className='mx-auto text-center'>Distance from port</h3>
+                <div className='flex justify-center items-center'>
+                <h3 className='mx-auto text-center'>Distanse fra havn</h3>
+                <FormControlLabel
+                    control={<Checkbox checked={showPortsLayer} onChange={handleShowPortsChange} />}
+                    label="Vis havndata"
+                />
+                </div>
                 {portsSliderMaxValue > 0 && (
                     <Slider defaultValue={portsSliderMaxValue} min={0} max={portsSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handlePortsSliderChange}/>
                 )}
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
-                <h3 className='mx-auto text-center'>Distance from lake</h3>
+                <div className='flex justify-center items-center'>
+                <h3 className='mx-auto text-center'>Distanse fra innsjø</h3>
+                <FormControlLabel
+                    control={<Checkbox checked={showLakesLayer} onChange={handleShowLakesChange} />}
+                    label="Vis innsjø"
+                />
+                </div>
                 {lakesSliderMaxValue > 0 && (
                     <Slider defaultValue={lakesSliderMaxValue} min={0} max={lakesSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleLakesSliderChange}/>
                 )}
             </div>
-        <div className="justify-between items-center center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
+        <div className="justify-between items-center center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 flex">
             <p className='mx-auto text-center'>Points matching your description: {pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
+            <FormControlLabel
+                    control={<Checkbox checked={showAirportsLayer} onChange={handleShowAirportsChange} />}
+                    label="Vis flyplasser"
+                />
         </div>
         <div className='m-4 overflow-y-auto'>
             {pointDataWithDistanceManipulated && pointDataWithDistanceManipulated.features && pointDataWithDistanceManipulated.features.length > 0 ? (
                 pointDataWithDistanceManipulated.features.map(feature => (
-                    <InfoCard object={feature} onClick={() => handleInfoCardClick(feature.properties.lat_y, feature.properties.long_x, feature)}/>
+                    <InfoCard object={feature} onClick={() => handleInfoCardClick(feature.properties.latitude, feature.properties.longitude, feature)}/>
                 ))
                 ) : (
                 <p>No matching features found.</p>
@@ -317,12 +376,12 @@ function river() {
       </div>
       {infoCardClicked && (
       <div
-          className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black opacity-50 z-20"
+          className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
           onClick={handleUpperDivClick}
         >
             <ClickedUpperComponent object={airportObject}/>
         </div> )}
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature}/>
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer}/>
     </div>
   )
 }

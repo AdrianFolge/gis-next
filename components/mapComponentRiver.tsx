@@ -1,3 +1,4 @@
+import { url } from 'inspector';
 import React, { useRef, useEffect, useState } from 'react';
 import ReactMapGL, { Source, Layer, MapRef } from 'react-map-gl';
 interface viewState {
@@ -24,15 +25,21 @@ interface MapComponentProps {
     singleRiverFeature: string;
     singleReefFeature: string;
     singleCoastFeature: string;
+    showPortsLayer: boolean;
+    showCoastsLayer: boolean;
+    showRiversLayer: boolean;
+    showReefsLayer: boolean;
+    showAirportsLayer: boolean;
+    showLakesLayer: boolean;
+
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer }) => {
     const [blinkOpacity, setBlinkOpacity] = useState(0.8);
     useEffect(() => {
       const interval = setInterval(() => {
         setBlinkOpacity(prevOpacity => (prevOpacity === 0 ? 0.8 : 0)); // Toggle opacity
       }, 3000); // Blink every 1 second
-  
       return () => clearInterval(interval);
     }, []);
     return (
@@ -46,15 +53,17 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
     
       {!singleCityFeature && (
         <> 
-        <Source type="geojson" data={lineLayer}>
-          <Layer
-            id="line"
-            type="line"
-            paint={{
-              'line-color': '#FF0000',
-            }}
-          />
-        </Source>
+          {showRiversLayer && (
+            <Source type="geojson" data={lineLayer}>
+              <Layer
+                id="line"
+                type="line"
+                paint={{
+                  'line-color': '#FF0000',
+                }}
+              />
+            </Source>
+          )}
         <Source type="geojson" data={pointLayer}>
           <Layer
             id="point"
@@ -68,16 +77,19 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               }}
           />
         </Source>
+        {showPortsLayer && (
         <Source type="geojson" data={portsPointLayer}>
           <Layer
-            id="ports"
-            type="circle"
-            paint={{
-              'circle-color': '#4169E1',
-              'circle-radius': 8,
-            }}
-          />
+              id="ports"
+              type="circle"
+              paint={{
+                'circle-color': '#4169E1',
+                'circle-radius': 8,
+              }}
+            />
         </Source>
+        )}
+        {showLakesLayer && (
         <Source type="geojson" data={lakesLayer}>
           <Layer
             id="lakes"
@@ -88,6 +100,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
+        )}
+        {showReefsLayer && (
         <Source type="geojson" data={reefsLayer}>
           <Layer
             id="reefs"
@@ -97,6 +111,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
+        )}
+        {showCoastsLayer && (
         <Source type="geojson" data={coastLinesLayer}>
           <Layer
             id="coastline"
@@ -106,6 +122,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
+        )}
+        {showAirportsLayer && (
         <Source type="geojson" data={airportLayer}>
           <Layer
             id="airport"
@@ -115,7 +133,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               'circle-radius': 8,
             }}
           />
-        </Source> </>)}
+        </Source>)} </>)}
         {singleCityFeature && (
           <>
           <Source id="feature-source" type="geojson" data={singleCityFeature}>
@@ -133,13 +151,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
           </Source>
           <Source id="port-source" type="geojson" data={singlePortFeature}>
           <Layer
-            id="port-layer"
-            type="circle"
-            paint={{
-              'circle-color': '#4169E1',
-              'circle-radius': 8,
-            }}
-          />
+              id="ports"
+              type="circle"
+              paint={{
+                'circle-color': '#4169E1',
+                'circle-radius': 8,
+              }}
+            />
         </Source>
         <Source id="river-source" type="geojson" data={singleRiverFeature}>
           <Layer
