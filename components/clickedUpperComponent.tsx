@@ -14,27 +14,14 @@ const unsplash = createApi({
   accessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY,
 });
 
-
-
-const getImageSource = (region) => {
-  switch (region) {
-      case 'Asia':
-          return '/images/asia.avif';
-      case 'Europe':
-          return '/images/europe.jpeg';
-      case 'South America':
-          return '/images/south_america.jpeg';
-      case 'Africa':
-          return '/images/africa.jpeg';
-      case 'North America':
-          return '/images/north_america.jpeg';
-      case 'Oceania':
-          return '/images/oceania.jpeg';
-    // Add more cases for other regions
-    default:
-      return '/images/else.jpeg'; // Fallback image
+function formatCountryName(countryName) {
+  if (countryName.includes(' ')) {
+    return countryName.toLowerCase().replace(/\s+/g, '-');
+  } else {
+    return countryName.toLowerCase();
   }
-};
+}
+
 
 function ClickedUpperComponent(object) {
     const [images, setImages] = useState([]);
@@ -67,6 +54,7 @@ function ClickedUpperComponent(object) {
         }
       });
     }, [object]);
+    const formattedCountryName = formatCountryName(obj.adm0name);
     return (
       <div className='w-full h-full grid grid-cols-3 justify-between gap-6 bg-white'>
         <div className='h-full items-center flex justify-center'> 
@@ -79,8 +67,17 @@ function ClickedUpperComponent(object) {
           </div>
         </div>
         <div className='h-full items-center justify-center grid grid-rows-5'> 
-          <div className='flex gap-3'>
+          <div className='flex gap-3 items-center'>
             <h4 className='text-2xl'>{obj.name}</h4>
+            <div className="relative h-6 w-6">
+                    <Image 
+                        alt=""
+                        src={`https://cdn.countryflags.com/thumbs/${formattedCountryName}/flag-square-500.png`}
+                        layout="fill"
+                        className="rounded-lg"
+                        unoptimized={true}
+                    />
+              </div>
           </div>
           <div className='flex gap-3'>
             <h1 className='text-l'>Innbyggertall: {Math.ceil(obj.pop_max)}</h1>
