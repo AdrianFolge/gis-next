@@ -33,9 +33,9 @@ function InfoCard({object, onClick}) {
                         <p>{properties.name}</p>
                     </div>
                     <h4 className="text-xl">{properties.subregion ? (
-                            <p>{properties.subregion}</p>
+                            <p>{properties.adm0name}</p>
                             ) : (
-                            <p>{properties.region}</p>
+                            <p>{properties.sov0name}</p>
                             )}</h4>
                     <div className="border-b w-10 pt-2"/>
                     <div className="justify-between items-end pt-5">
