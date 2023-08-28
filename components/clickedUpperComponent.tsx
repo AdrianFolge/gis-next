@@ -24,24 +24,24 @@ function formatCountryName(countryName) {
 }
 
 
-function ClickedUpperComponent(object) {
+function ClickedUpperComponent({object, drivingInfo}) {
     const [images, setImages] = useState([]);
     const [firstImages, setFirstImages] = useState([])
     const [secondImages, setSecondImages] = useState([])
     const [thirdImages, setThirdImages] = useState([])
     const [weather, setWeather] = useState(null)
-    if (!object ||  !object.object ||  !object.object.nearestAirportDistance) {
+    if (!object || !object.nearestAirportDistance) {
       return (
         <div className='w-full h-full bg-white'>
           <p>Avstand til nærmeste flyplass: N/A</p>
         </div>
       );
     }
-    const firstImage = object.object.nearestAttractions.features[0].properties.name
-    const secondImage = object.object.nearestAttractions.features[1].properties.name
-    const thirdImage = object.object.nearestAttractions.features[2].properties.name
-    const airport = object.object.nearestAirportDistance;
-    const obj = object.object
+    const firstImage = object.nearestAttractions.features[0].properties.name
+    const secondImage = object.nearestAttractions.features[1].properties.name
+    const thirdImage = object.nearestAttractions.features[2].properties.name
+    const airport = object.nearestAirportDistance;
+    const obj = object
     useEffect(() => {
       const apiUrl = `https://api.open-meteo.com/v1/forecast?forecast_days&latitude=${obj.latitude}&longitude=${obj.longitude}&hourly=temperature_2m&hourly=cloudcover&hourly=rain`
       axios.get(apiUrl)
@@ -120,29 +120,29 @@ function ClickedUpperComponent(object) {
           )}
         </div>
         <div className='grid grid-cols-1 md:grid-rows-3 gap-4 justify-center ml-20'>
-          {object.object.nearestAttractions.features.map((feature, index) => (
-            <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} />
+          {object.nearestAttractions.features.map((feature, index) => (
+            <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index}/>
           ))}
         </div>
         <div className='h-full items-center justify-center grid grid-rows-5'> 
           <div className='flex gap-3'>
-            <p>Avstand til nærmeste flyplass: {Math.ceil(airport.minDistance)} km</p>
+            <p>Nærmeste flyplass: {airport.properties.properties.name_en} ({Math.ceil(airport.minDistance)}) km</p>
             <ConnectingAirportsIcon/>
           </div>
           <div className='flex gap-3'>
-            <p>Avstand til nærmeste elv: {Math.ceil(obj.nearestRiverDistance.minDistance)} km</p>
+            <p>Nærmeste elv: {obj.nearestRiverDistance.properties.properties.name} ({Math.ceil(obj.nearestRiverDistance.minDistance)}) km</p>
             <KayakingIcon/>
           </div>
           <div className='flex gap-3'>
-            <p>Avstand til nærmeste kystlinje: {Math.ceil(obj.nearestCoastDistance.minDistance)} km</p>
+            <p>Nærmeste kystlinje: {Math.ceil(obj.nearestCoastDistance.minDistance)} km</p>
             <WavesIcon/>
           </div>
           <div className='flex gap-3'>
-            <p>Avstand til nærmeste koralrev: {Math.ceil(obj.nearestReefsDistance.minDistance)} km</p>
+            <p>Nærmeste koralrev: {Math.ceil(obj.nearestReefsDistance.minDistance)} km</p>
             <ScubaDivingIcon/>
           </div>
           <div className='flex gap-3'>
-            <p>Avstand til nærmeste havn: {Math.ceil(obj.nearestPortDistance.minDistance)} km</p>
+            <p>Nærmeste havn: {obj.nearestPortDistance.properties.properties.name} ({Math.ceil(obj.nearestPortDistance.minDistance)}) km</p>
             <DirectionsBoatFilledIcon/>
           </div>
         </div>

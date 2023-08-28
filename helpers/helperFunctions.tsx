@@ -1,7 +1,7 @@
 import * as turf from '@turf/turf';
 import { polygonToLine } from '@turf/polygon-to-line';
 import { FeatureCollection, Point } from 'geojson';
-import { useEffect } from 'react';
+import { decode } from '@mapbox/polyline';
 export interface GeoJSONFeature {
     type: string;
     geometry: {
@@ -310,3 +310,28 @@ export function findClosestAttractions(cityPoints, attractionPoints, numClosest)
 
   return closestAttractionsArray;
 }
+
+export const fetchDirections = (startCoords, endCoords, color) => {
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}?access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+  
+  return fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const polyline = data.routes[0].geometry;
+      console.log(data.routes[0])
+      const decodedPolyline = decode(polyline);
+      const geojson = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: decodedPolyline.map(coords => [coords[1], coords[0]])
+        },
+        properties: {
+          distance: data.routes[0].distance,
+          duration: data.routes[0].duration,
+          color: color // Assign the color to the properties of the GeoJSON object
+        }
+      };
+      return geojson;
+    });
+};

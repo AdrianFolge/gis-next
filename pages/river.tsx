@@ -61,6 +61,8 @@ function river() {
     const[showReefsLayer, setShowReefsLayer] = useState(false);
     const[showCoastsLayer, setShowCoastsLayer] = useState(false);
 
+    const[drivingInfo, setDrivingInfo] = useState(null)
+
     const [airportObject, setAirportObject] = useState(null)
 
     const [infoCardClicked, setInfoCardClicked] = useState(false);
@@ -106,8 +108,8 @@ function river() {
     };
 
     const [viewState, setViewState] = useState({
-      latitude: 0,
-      longitude: 0,
+      latitude: 10.56,
+      longitude: 63.161,
       zoom: 10,
     });
     const mapReference = useRef<MapRef>()
@@ -132,7 +134,7 @@ function river() {
         setSinglePortFeature(portFeature)
         const airportFeature = {
             type: 'Feature',
-            geometry: object.properties.nearestAirportDistance.properties.geometry,
+            geometry: object.properties.nearestAirportDistance ? object.properties.nearestAirportDistance.properties.geometry : null,
             properties: {
             }
         }
@@ -162,9 +164,9 @@ function river() {
         setViewState({
             latitude: latitude,
             longitude: longitude,
-            zoom: 8,
+            zoom: 4,
         });
-        mapReference.current?.flyTo({center: [longitude,latitude], duration: 2000, zoom: 5});
+        mapReference.current?.flyTo({center: [longitude,latitude], duration: 2000, zoom: 8});
       };
     useEffect(() => {
       const pointLayerURL = pointsOfCities;
@@ -224,7 +226,6 @@ function river() {
     useEffect(() => {
         if (pointData && lineData && coastlinesData) {
             const arrayNearestAttractions = findClosestAttractions(pointData, attractionsData, 3)
-        console.log(findClosestAttractions(pointData, attractionsData, 3))
           const arrayReefsDistances = calculateDistancesToNearestLine({
             pointData,
             lineData: reefsData,
@@ -392,9 +393,9 @@ function river() {
           className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
           onClick={handleUpperDivClick}
         >
-            <ClickedUpperComponent object={airportObject}/>
+            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo}/>
         </div> )}
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature}/>
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo}/>
     </div>
   )
 }
