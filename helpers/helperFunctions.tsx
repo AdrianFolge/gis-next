@@ -1,7 +1,7 @@
 import * as turf from '@turf/turf';
 import { polygonToLine } from '@turf/polygon-to-line';
 import { FeatureCollection, Point } from 'geojson';
-import { useEffect } from 'react';
+import { decode } from '@mapbox/polyline';
 export interface GeoJSONFeature {
     type: string;
     geometry: {
@@ -277,4 +277,61 @@ export const calculateDistancesToNearestPointPolygon = ({
   setSliderMaxValue(Math.ceil(Math.max(...distanceValues)));
   setSliderValue(Math.ceil(Math.max(...distanceValues)));
   return nearestPointPolygonDistanceArray;
+};
+
+export function findClosestAttractions(cityPoints, attractionPoints, numClosest) {
+  const closestAttractionsArray = [];
+
+  cityPoints.features.forEach(cityPoint => {
+    const cityCoordinates = cityPoint.geometry.coordinates;
+
+    // Calculate distances between the city point and all attraction points
+    const distances = attractionPoints.features.map(attractionPoint => {
+      const attractionCoordinates = attractionPoint.geometry.coordinates;
+      const distance = turf.distance(cityCoordinates, attractionCoordinates);
+      return { attraction: attractionPoint, distance };
+    });
+
+    // Sort attractions by distance
+    distances.sort((a, b) => a.distance - b.distance);
+
+    // Select the specified number of closest attractions
+    const closestNFeatures = distances.slice(1, numClosest+1).map(item => item.attraction);
+
+    // Create a FeatureCollection for the closest attractions of this city
+    const closestAttractions = {
+      type: 'FeatureCollection',
+      features: closestNFeatures
+    };
+
+    // Store the FeatureCollection in the array
+    closestAttractionsArray.push(closestAttractions);
+  });
+
+  return closestAttractionsArray;
+}
+
+export const fetchDirections = (startCoords, endCoords, color) => {
+  const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords[0]},${startCoords[1]};${endCoords[0]},${endCoords[1]}?access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+  
+  return fetch(url)
+    .then(response => response.json())
+    .then(data => {
+      const polyline = data.routes[0].geometry;
+      console.log(data.routes[0])
+      const decodedPolyline = decode(polyline);
+      const geojson = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: decodedPolyline.map(coords => [coords[1], coords[0]])
+        },
+        properties: {
+          distance: data.routes[0].distance,
+          duration: data.routes[0].duration,
+          color: color // Assign the color to the properties of the GeoJSON object
+        }
+      };
+      return geojson;
+    });
 };

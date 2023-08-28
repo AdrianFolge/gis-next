@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import MapComponent from '../components/mapComponentRiver'
 import { MapRef } from "react-map-gl"
 import Slider from '@mui/material/Slider';
-import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon } from '../helpers/helperFunctions';
+import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon, findClosestAttractions } from '../helpers/helperFunctions';
 import InfoCard from '../components/card';
 import ClickedUpperComponent from '../components/clickedUpperComponent';
 import { Checkbox, FormControlLabel } from '@mui/material';
@@ -14,6 +14,7 @@ const coastlines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_
 const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_lakes.geojson"
 const reefs = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_reefs.geojson"
 const airport = "https://raw.githubusercontent.com/AdrianFolge/gis-next/main/data/osm-world-airports%40babel.geojson"
+const attractions = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_populated_places_simple.geojson"
 
 function river() {
     const [riverSliderMaxValue, setRiverSliderMaxValue] = useState(0)
@@ -43,6 +44,7 @@ function river() {
     const [lakesData, setLakesData] = useState(null);
     const [reefsData, setReefsData] = useState(null)
     const [airportData, setAirportData] = useState(null);
+    const [attractionsData, setAttractionsData] = useState(null)
 
     const [singleCityFeature, setSingleCityFeature] = useState(null)
     const [singlePortFeature, setSinglePortFeature] = useState(null)
@@ -50,6 +52,7 @@ function river() {
     const [singleReefFeature, setSingleReefFeature] = useState(null)
     const [singleRiverFeature, setSingleRiverFeature] = useState(null)
     const [singleCoastFeature, setSingleCoastFeature] = useState(null)
+    const [threeAttractionsFeature, setThreeAttractionsFeature] = useState(null)
 
     const[showRiversLayer, setShowRiversLayer] = useState(false);
     const[showLakesLayer, setShowLakesLayer] = useState(false);
@@ -57,6 +60,8 @@ function river() {
     const[showAirportsLayer, setShowAirportsLayer] = useState(false);
     const[showReefsLayer, setShowReefsLayer] = useState(false);
     const[showCoastsLayer, setShowCoastsLayer] = useState(false);
+
+    const[drivingInfo, setDrivingInfo] = useState(null)
 
     const [airportObject, setAirportObject] = useState(null)
 
@@ -103,13 +108,14 @@ function river() {
     };
 
     const [viewState, setViewState] = useState({
-      latitude: 0,
-      longitude: 0,
+      latitude: 10.56,
+      longitude: 63.161,
       zoom: 10,
     });
     const mapReference = useRef<MapRef>()
     const handleInfoCardClick = (latitude, longitude, object) => {
-        console.log(object)
+        const attractionsFeature = object.properties.nearestAttractions;
+        setThreeAttractionsFeature(attractionsFeature)
         setInfoCardClicked(true);
         const cityFeature = {
             type: 'Feature',
@@ -128,7 +134,7 @@ function river() {
         setSinglePortFeature(portFeature)
         const airportFeature = {
             type: 'Feature',
-            geometry: object.properties.nearestAirportDistance.properties.geometry,
+            geometry: object.properties.nearestAirportDistance ? object.properties.nearestAirportDistance.properties.geometry : null,
             properties: {
             }
         }
@@ -158,9 +164,9 @@ function river() {
         setViewState({
             latitude: latitude,
             longitude: longitude,
-            zoom: 8,
+            zoom: 4,
         });
-        mapReference.current?.flyTo({center: [longitude,latitude], duration: 2000, zoom: 5});
+        mapReference.current?.flyTo({center: [longitude,latitude], duration: 2000, zoom: 8});
       };
     useEffect(() => {
       const pointLayerURL = pointsOfCities;
@@ -170,6 +176,12 @@ function river() {
       const lakesURL = lakes;
       const reefsURL = reefs;
       const airportURL = airport
+      const attractionsURL = attractions  
+      fetch(attractionsURL)
+        .then(response => response.json())
+        .then(geojson => {
+          setAttractionsData(geojson);
+      });
       fetch(pointLayerURL)
         .then(response => response.json())
         .then(geojson => {
@@ -213,6 +225,7 @@ function river() {
 
     useEffect(() => {
         if (pointData && lineData && coastlinesData) {
+            const arrayNearestAttractions = findClosestAttractions(pointData, attractionsData, 3)
           const arrayReefsDistances = calculateDistancesToNearestLine({
             pointData,
             lineData: reefsData,
@@ -267,6 +280,7 @@ function river() {
                     nearestPortDistance: arrayPortsDistances[index],
                     nearestLakeDistance: arrayLakesDistances[index],
                     nearestAirportDistance: arrayAirportsDistances[index],
+                    nearestAttractions: arrayNearestAttractions[index]
                   }
                 }))
               };
@@ -379,9 +393,9 @@ function river() {
           className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
           onClick={handleUpperDivClick}
         >
-            <ClickedUpperComponent object={airportObject}/>
+            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo}/>
         </div> )}
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer}/>
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo}/>
     </div>
   )
 }
