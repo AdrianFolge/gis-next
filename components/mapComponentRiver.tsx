@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactMapGL, { Source, Layer, MapRef } from 'react-map-gl';
 import { fetchDirections } from '../helpers/helperFunctions';
-
+import 'mapbox-gl/dist/mapbox-gl.css';
 interface viewState {
     latitude: number,
     longitude: number,
@@ -38,6 +38,7 @@ interface MapComponentProps {
 const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo }) => {
   const [blinkOpacity, setBlinkOpacity] = useState(0.8);
   const [routeGeoJSON, setRouteGeoJSON] = useState(null);
+  const [style, setStyle] = useState("mapbox://styles/mapbox/dark-v11")
 
     useEffect(() => {
       const interval = setInterval(() => {
@@ -78,14 +79,21 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       }
     }, [singleCityFeature, threeAttractionsFeature]);
     return (
+      <>
     <ReactMapGL
       ref={mapReference}
       {...viewState}
       mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || ''}
-      onMove={evt => setViewState(evt.viewState)}
-      mapStyle="mapbox://styles/mapbox/dark-v11"
+      onMove={evt => {setViewState(evt.viewState)
+        if (evt.viewState.zoom > 16) {
+          setStyle('mapbox://styles/mapbox/satellite-streets-v12');
+        } else {
+          setStyle('mapbox://styles/mapbox/dark-v11');
+          console.log(style)
+        }
+      }}
+      mapStyle={style}
     >
-    
       {!singleCityFeature && (
         <> 
           {showRiversLayer && (
@@ -256,6 +264,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
         </>
         )}
     </ReactMapGL>
+    </>
   );
 };
 

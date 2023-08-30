@@ -224,7 +224,7 @@ function river() {
     }, []);
 
     useEffect(() => {
-        if (pointData && lineData && coastlinesData) {
+        if (pointData && lineData && coastlinesData && attractionsData) {
             const arrayNearestAttractions = findClosestAttractions(pointData, attractionsData, 3)
           const arrayReefsDistances = calculateDistancesToNearestLine({
             pointData,

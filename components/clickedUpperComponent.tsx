@@ -25,6 +25,7 @@ function formatCountryName(countryName) {
 
 
 function ClickedUpperComponent({object, drivingInfo}) {
+  console.log(object)
     const [images, setImages] = useState([]);
     const [firstImages, setFirstImages] = useState([])
     const [secondImages, setSecondImages] = useState([])
