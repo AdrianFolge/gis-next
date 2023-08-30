@@ -86,9 +86,10 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || ''}
       onMove={evt => {setViewState(evt.viewState)
         if (evt.viewState.zoom > 16) {
-          setStyle('mapbox://styles/mapbox/standard-beta');
+          setStyle('mapbox://styles/mapbox/satellite-streets-v12');
         } else {
           setStyle('mapbox://styles/mapbox/dark-v11');
+          console.log(style)
         }
       }}
       mapStyle={style}
