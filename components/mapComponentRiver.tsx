@@ -61,9 +61,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
         // Wait for all directions to be fetched
         Promise.all(fetchPromises)
           .then(geojsonArray => {
-            // Now you have an array of resolved GeoJSON objects
-            // You can merge or process these GeoJSON objects as needed
-            // For example, you can merge them into a single GeoJSON feature collection
             const mergedGeoJSON = {
               type: 'FeatureCollection',
               features: geojsonArray
