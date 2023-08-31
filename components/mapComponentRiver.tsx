@@ -48,15 +48,19 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       return () => clearInterval(interval);
     }, []);
     useEffect(() => {
-      if (singleCityFeature && threeAttractionsFeature && threeAttractionsFeature.features.length > 0) {
+      if (singleCityFeature && singleAirportFeature && singlePortFeature && threeAttractionsFeature && threeAttractionsFeature.features.length > 0) {
         const startCoords = singleCityFeature.geometry.coordinates;
         const firstEndCoords = threeAttractionsFeature.features[0].geometry.coordinates;
         const secondEndCoords = threeAttractionsFeature.features[1].geometry.coordinates;
         const thirdEndCoords = threeAttractionsFeature.features[2].geometry.coordinates;
+        const airportEndCoords = singleAirportFeature.geometry.coordinates
+        const portEndCoords = singlePortFeature.geometry.coordinates
         const fetchPromises = [
           fetchDirections(startCoords, firstEndCoords, '#0074D9'),
           fetchDirections(startCoords, secondEndCoords, '#FF4136'),
-          fetchDirections(startCoords, thirdEndCoords, '#2ECC40')
+          fetchDirections(startCoords, thirdEndCoords, '#2ECC40'),
+          fetchDirections(startCoords, airportEndCoords, '#800080'),
+          fetchDirections(startCoords, portEndCoords, '#4169E1')
         ];
         
         // Wait for all directions to be fetched

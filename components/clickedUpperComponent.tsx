@@ -83,7 +83,6 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
     }, [object]);
 
     function handleMediumCardClick(features, object){
-      console.log(features); 
       console.log(object)
       const routeFeature = {
         type: 'Feature',
@@ -161,7 +160,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
           ))}
         </div>
         <div className='h-full items-center justify-center grid grid-rows-5'> 
-          <div className='flex gap-3'>
+          <div className='flex gap-3 p-3 rounded-lg' style={{backgroundColor: "#800080"}} onMouseEnter={() => handleMediumCardClick(object.nearestAirportDistance.properties, object)}>
             <p>Nærmeste flyplass: {airport.properties.properties.name_en} ({Math.ceil(airport.minDistance)}) km</p>
             <ConnectingAirportsIcon/>
           </div>
@@ -177,7 +176,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
             <p>Nærmeste koralrev: {Math.ceil(obj.nearestReefsDistance.minDistance)} km</p>
             <ScubaDivingIcon/>
           </div>
-          <div className='flex gap-3'>
+          <div className='flex gap-3 p-3 rounded-lg' style={{backgroundColor: "#4169E1"}} onMouseEnter={() => handleMediumCardClick(object.nearestPortDistance.properties, object)}>
             <p>Nærmeste havn: {obj.nearestPortDistance.properties.properties.name} ({Math.ceil(obj.nearestPortDistance.minDistance)}) km</p>
             <DirectionsBoatFilledIcon/>
           </div>

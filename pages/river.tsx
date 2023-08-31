@@ -118,7 +118,7 @@ function river() {
     const [viewState, setViewState] = useState({
       latitude: 10.56,
       longitude: 63.161,
-      zoom: 10,
+      zoom: 6,
     });
     const mapReference = useRef<MapRef>()
     const handleInfoCardClick = (latitude, longitude, object) => {
