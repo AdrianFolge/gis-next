@@ -34,9 +34,10 @@ interface MapComponentProps {
     setDrivingInfo;
     drivingInstructionsLine;
     drivingInstructionsPointLayer;
+    onClick;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer, onClick }) => {
   const [blinkOpacity, setBlinkOpacity] = useState(0.8);
   const [routeGeoJSON, setRouteGeoJSON] = useState(null);
   const [style, setStyle] = useState("mapbox://styles/mapbox/dark-v11")
@@ -92,6 +93,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       onMove={evt => {setViewState(evt.viewState)
       }}
       mapStyle={style}
+      onClick={onClick}
     >
       {drivingInstructionsPointLayer && (
         <>
