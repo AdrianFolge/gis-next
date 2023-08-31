@@ -200,9 +200,19 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>)} </>)}
-        {singleCityFeature && (
+        {routeGeoJSON && singleCityFeature && (
           <>
-          <Source id="feature-source" type="geojson" data={singleCityFeature}>
+          <Source type="geojson" data={routeGeoJSON}>
+            <Layer
+              id="route"
+              type="line"
+              paint={{
+                'line-color': ['get', 'color'],
+                'line-width': 3,
+              }}
+            />
+          </Source>
+          <Source type="geojson" data={singleCityFeature}>
             <Layer
               id="feature-layer"
               type="circle"
@@ -215,7 +225,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               }}
             />
           </Source>
-          <Source id="port-source" type="geojson" data={singlePortFeature}>
+          <Source type="geojson" data={singlePortFeature}>
           <Layer
               id="ports"
               type="circle"
@@ -225,7 +235,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               }}
             />
         </Source>
-        <Source id="attractions-source" type="geojson" data={threeAttractionsFeature}>
+        <Source type="geojson" data={threeAttractionsFeature}>
           <Layer
               id="attractions"
               type="circle"
@@ -235,7 +245,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               }}
             />
         </Source>
-        <Source id="river-source" type="geojson" data={singleRiverFeature}>
+        <Source type="geojson" data={singleRiverFeature}>
           <Layer
             id="river-line"
             type="line"
@@ -244,7 +254,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
-        <Source id="coast-source" type="geojson" data={singleCoastFeature}>
+        <Source type="geojson" data={singleCoastFeature}>
           <Layer
             id="coast-line"
             type="line"
@@ -253,7 +263,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
-        <Source id="reef-source" type="geojson" data={singleReefFeature}>
+        <Source type="geojson" data={singleReefFeature}>
           <Layer
             id="reef-line"
             type="line"
@@ -262,7 +272,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
-        <Source id="airport-source" type="geojson" data={singleAirportFeature}>
+        <Source type="geojson" data={singleAirportFeature}>
           <Layer
             id="airport-layer"
             type="circle"
@@ -272,18 +282,6 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
-        {routeGeoJSON && (
-          <Source type="geojson" data={routeGeoJSON}>
-            <Layer
-              id="route"
-              type="line"
-              paint={{
-                'line-color': ['get', 'color'],
-                'line-width': 3,
-              }}
-            />
-          </Source>
-        )}
         </>
         )}</>)}
     </ReactMapGL>

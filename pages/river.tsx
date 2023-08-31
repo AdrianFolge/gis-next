@@ -122,6 +122,10 @@ function river() {
     });
     const mapReference = useRef<MapRef>()
     const handleInfoCardClick = (latitude, longitude, object) => {
+      setDrivingInstructionsLine(null)
+      setDrivingInstructionsPointLayer(null)
+      setListOfInstructions(null)
+      console.log(object)
         const attractionsFeature = object.properties.nearestAttractions;
         setThreeAttractionsFeature(attractionsFeature)
         setInfoCardClicked(true);
