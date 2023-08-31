@@ -24,8 +24,7 @@ function formatCountryName(countryName) {
 }
 
 
-function ClickedUpperComponent({object, drivingInfo}) {
-  console.log(object)
+function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions}) {
     const [images, setImages] = useState([]);
     const [firstImages, setFirstImages] = useState([])
     const [secondImages, setSecondImages] = useState([])
@@ -82,6 +81,42 @@ function ClickedUpperComponent({object, drivingInfo}) {
         }
       });
     }, [object]);
+
+    function handleMediumCardClick(features, object){
+      console.log(features); 
+      console.log(object)
+      const routeFeature = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            [object.longitude, object.latitude],
+            [features.geometry.coordinates[0], features.geometry.coordinates[1]],
+          ],
+        },
+      };
+      setDrivingInstructionsPointLayer(routeFeature)
+        const apiUrl =
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${object.longitude}%2C${object.latitude}%3B${features.geometry.coordinates[0]}%2C${features.geometry.coordinates[1]}?alternatives=true&geometries=geojson&language=en&overview=full&steps=true&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+    
+        axios.get(apiUrl)
+          .then(response => {
+            console.log("RESPONSE: ", response);
+            setListOfInstructions(response.data.routes[0].legs[0].steps)
+            const lineFeature = {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: response.data.routes[0].geometry.coordinates,
+              },
+            };
+            setDrivingInstructionsLine(lineFeature)
+          })
+          .catch(error => {
+            console.error('Error fetching directions:', error);
+          });
+  
+    };
     const formattedCountryName = formatCountryName(obj.adm0name);
     const arrayOfImages = [firstImages, secondImages, thirdImages]
     return (
@@ -122,7 +157,7 @@ function ClickedUpperComponent({object, drivingInfo}) {
         </div>
         <div className='grid grid-cols-1 md:grid-rows-3 gap-4 justify-center ml-20'>
           {object.nearestAttractions.features.map((feature, index) => (
-            <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index}/>
+            <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index} onClick={() => handleMediumCardClick(feature, object)}/>
           ))}
         </div>
         <div className='h-full items-center justify-center grid grid-rows-5'> 

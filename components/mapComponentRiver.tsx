@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import ReactMapGL, { Source, Layer, MapRef } from 'react-map-gl';
+import ReactMapGL, { Source, Layer, MapRef, Marker } from 'react-map-gl';
 import { fetchDirections } from '../helpers/helperFunctions';
 import 'mapbox-gl/dist/mapbox-gl.css';
 interface viewState {
@@ -32,10 +32,11 @@ interface MapComponentProps {
     showAirportsLayer: boolean;
     showLakesLayer: boolean;
     setDrivingInfo;
-
+    drivingInstructionsLine;
+    drivingInstructionsPointLayer;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer }) => {
   const [blinkOpacity, setBlinkOpacity] = useState(0.8);
   const [routeGeoJSON, setRouteGeoJSON] = useState(null);
   const [style, setStyle] = useState("mapbox://styles/mapbox/dark-v11")
@@ -85,15 +86,37 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       {...viewState}
       mapboxAccessToken={process.env.REACT_APP_MAPBOX_ACCESS_TOKEN || ''}
       onMove={evt => {setViewState(evt.viewState)
-        if (evt.viewState.zoom > 16) {
-          setStyle('mapbox://styles/mapbox/satellite-streets-v12');
-        } else {
-          setStyle('mapbox://styles/mapbox/dark-v11');
-          console.log(style)
-        }
       }}
       mapStyle={style}
     >
+      {drivingInstructionsPointLayer && (
+        <>
+        <Source type="geojson" data={drivingInstructionsPointLayer}>
+          <Layer
+            id="point"
+            type="circle"
+            paint={{
+                'circle-radius': 10,
+                'circle-color': 'red',
+                'circle-opacity': blinkOpacity, // Toggle opacity based on blink state
+                'circle-stroke-width': 2,
+                'circle-stroke-color': 'red',
+              }}
+          />
+        </Source>
+        <Source type="geojson" data={drivingInstructionsLine}>
+          <Layer
+              id="line"
+              type="line"
+              paint={{
+                'line-color': '#FF0000',
+              }}
+          />
+        </Source>
+        </>
+      )}
+      {!drivingInstructionsPointLayer && (
+      <>
       {!singleCityFeature && (
         <> 
           {showRiversLayer && (
@@ -262,7 +285,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
           </Source>
         )}
         </>
-        )}
+        )}</>)}
     </ReactMapGL>
     </>
   );
