@@ -6,6 +6,7 @@ import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calc
 import InfoCard from '../components/card';
 import ClickedUpperComponent from '../components/clickedUpperComponent';
 import { Checkbox, FormControlLabel } from '@mui/material';
+import * as turf from "@turf/turf"
 
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
 const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_populated_places_simple.geojson"
@@ -67,6 +68,13 @@ function river() {
 
     const [infoCardClicked, setInfoCardClicked] = useState(false);
 
+    // Driving instructions
+
+    const [drivingInstructionsLine, setDrivingInstructionsLine] = useState(null)
+    const [drivingInstructionsPointLayer, setDrivingInstructionsPointLayer] = useState(null)
+
+    const [listOfInstructions, setListOfInstructions] = useState(null)
+
     const handleUpperDivClick = () => {
       setInfoCardClicked(!infoCardClicked);
       setSingleCityFeature(null)
@@ -114,6 +122,10 @@ function river() {
     });
     const mapReference = useRef<MapRef>()
     const handleInfoCardClick = (latitude, longitude, object) => {
+      setDrivingInstructionsLine(null)
+      setDrivingInstructionsPointLayer(null)
+      setListOfInstructions(null)
+      console.log(object)
         const attractionsFeature = object.properties.nearestAttractions;
         setThreeAttractionsFeature(attractionsFeature)
         setInfoCardClicked(true);
@@ -308,6 +320,25 @@ function river() {
               setPointDataWithDistanceManipulated(filteredFeatureCollection);
             }
           }, [riverSliderValue, coastSliderValue, reefsSliderValue, portsSliderValue, lakesSliderValue]);
+  const [visibleCardIndex, setVisibleCardIndex] = useState(0);
+
+  const handleScroll = (e) => {
+    const scrollPosition = e.target.scrollTop;
+    const screenHeight = window.innerHeight;
+    const cardHeight = screenHeight / 5;
+    const newIndex = Math.ceil((scrollPosition / cardHeight));
+    setVisibleCardIndex(newIndex);
+    const lineFeature = {
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: listOfInstructions[newIndex].geometry.coordinates,
+      },
+      properties: {},
+    };
+    setDrivingInstructionsLine(lineFeature)
+    mapReference.current?.flyTo({center: [lineFeature.geometry.coordinates[0][0],lineFeature.geometry.coordinates[0][1]], duration: 1000, zoom: 17});
+  }
   return (
     <div className="h-screen w-screen relative overflow-hidden">
       <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col  z-10">
@@ -393,9 +424,25 @@ function river() {
           className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
           onClick={handleUpperDivClick}
         >
-            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo}/>
+            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo} setDrivingInstructionsLine={setDrivingInstructionsLine} setDrivingInstructionsPointLayer={setDrivingInstructionsPointLayer} setListOfInstructions={setListOfInstructions}/>
         </div> )}
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo}/>
+      {drivingInstructionsPointLayer && listOfInstructions && (
+        <div className='fixed top-2/4 left-3/4 w-1/4 h-1/5 gap-2 z-20 bg-opacity-60 overflow-y-auto' onScroll={handleScroll}>
+              {listOfInstructions.map(instruction => (
+                <div className='bg-white p-3 h-full z-20 flex justify-center items-center bg-opacity-0 rounded-lg'>
+                  <div className='p-5 bg-white rounded-xl'>
+                    <h1>
+                    {instruction.maneuver.instruction}
+                    </h1>
+                    <h1>
+                    ({Math.ceil(instruction.distance)} m)
+                    </h1>
+                </div>
+              </div>
+              ))}
+        </div>
+      )}
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo} drivingInstructionsLine={drivingInstructionsLine} drivingInstructionsPointLayer={drivingInstructionsPointLayer}/>
     </div>
   )
 }

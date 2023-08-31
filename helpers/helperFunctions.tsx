@@ -318,7 +318,6 @@ export const fetchDirections = (startCoords, endCoords, color) => {
     .then(response => response.json())
     .then(data => {
       const polyline = data.routes[0].geometry;
-      console.log(data.routes[0])
       const decodedPolyline = decode(polyline);
       const geojson = {
         type: 'Feature',

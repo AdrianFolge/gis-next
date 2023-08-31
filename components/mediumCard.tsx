@@ -1,14 +1,14 @@
 import Image from "next/image";
 import DriveEtaIcon from '@mui/icons-material/DriveEta';
 
-function MediumCard({title, img, drivingInfo, index}) {
+function MediumCard({title, img, drivingInfo, index, onClick}) {
     const drivingInfoProps = drivingInfo ? drivingInfo[index]: null;
     const altImg = "/images/africa.jpeg" 
     const color = drivingInfoProps ? drivingInfoProps.properties.color : "white";
     const realDistance = drivingInfoProps ? drivingInfoProps.properties.distance / 1000 : 0;
     const realDuration = drivingInfoProps ? drivingInfoProps.properties.duration / 60 : 0;
     return (    
-        <div className="cursor-pointer hover:scale-105 transform transition duration-300 ease-out grid grid-cols-2 items-center gap-2 rounded-xl pl-2" style={{ backgroundColor: color }}>
+        <div className="cursor-pointer hover:scale-105 transform transition duration-300 ease-out grid grid-cols-2 items-center gap-2 rounded-xl pl-2" style={{ backgroundColor: color }} onMouseEnter={onClick}>
             <div className="">
                 <h3 className="text-2xl mt-3">{title}</h3>
                 <div className="flex gap-3">
