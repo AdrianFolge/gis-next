@@ -22,9 +22,9 @@ function MediumCard({title, img, drivingInfo, index, onClick}) {
                     <DriveEtaIcon />
                 </div>
             </div>
-            <div className="relative h-20 w-20 justify-center items-center">
+            <div className="absolute right-0 h-20 w-20">
                 {img[0] && (
-                    <Image alt={altImg} src={img[0].urls.regular} layout="fill" className="rounded-xl" unoptimized={true}/>
+                    <Image alt={altImg} src={img[0].urls.regular} layout="fill" className="rounded-xl right-0" unoptimized={true}/>
                 )}
             </div>
         </div>

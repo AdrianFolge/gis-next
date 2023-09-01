@@ -10,6 +10,8 @@ import { createApi } from 'unsplash-js';
 import axios from 'axios';
 import Smallcard from './smallCard';
 import MediumCard from './mediumCard';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const unsplash = createApi({
   accessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY,
@@ -24,12 +26,30 @@ function formatCountryName(countryName) {
 }
 
 
+
+
+
+
 function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions}) {
+  const cityName = object.name.toLowerCase()
+  const options = {
+    method: 'GET',
+    url: 'https://hotels4.p.rapidapi.com/locations/search',
+    params: {
+      query: `${cityName}`,
+    },
+    headers: {
+      'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
+      'X-RapidAPI-Host': 'hotels4.p.rapidapi.com'
+    }
+  };
+
     const [images, setImages] = useState([]);
     const [firstImages, setFirstImages] = useState([])
     const [secondImages, setSecondImages] = useState([])
     const [thirdImages, setThirdImages] = useState([])
     const [weather, setWeather] = useState(null)
+    const [hotelInfo, setHotelInfo] = useState(null)
     if (!object || !object.nearestAirportDistance) {
       return (
         <div className='w-full h-full bg-white'>
@@ -79,6 +99,15 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
         } else {
           setThirdImages(result.response.results);
         }
+      });
+      axios.request(options)
+      .then(response => {
+        const cityInfo = response.data;
+        console.log(cityInfo);
+        setHotelInfo(cityInfo.suggestions)
+      })
+      .catch(error => {
+        console.error(error);
       });
     }, [object]);
 
@@ -159,6 +188,12 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
             <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index} onClick={() => handleMediumCardClick(feature, object)}/>
           ))}
         </div>
+        <div className='overflow-y-auto'>
+        <Accordion className="">
+            <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
+              <h3 className='mx-auto text-center'>Aktiviteter</h3>
+            </AccordionSummary>
+            <AccordionDetails>
         <div className='h-full items-center justify-center grid grid-rows-5'> 
           <div className='flex gap-3 p-3 rounded-lg' style={{backgroundColor: "#800080"}} onClick={() => handleMediumCardClick(object.nearestAirportDistance.properties, object)}>
             <p>Nærmeste flyplass: {airport.properties.properties.name_en} ({Math.ceil(airport.minDistance)}) km</p>
@@ -180,6 +215,32 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
             <p>Nærmeste havn: {obj.nearestPortDistance.properties.properties.name} ({Math.ceil(obj.nearestPortDistance.minDistance)}) km</p>
             <DirectionsBoatFilledIcon/>
           </div>
+        </div>
+        </AccordionDetails>
+        </Accordion>
+        <Accordion className="overflow-y-auto">
+            <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
+              <h3 className='mx-auto text-center'>Hoteller</h3>
+            </AccordionSummary>
+            <AccordionDetails>
+        <div className='items-center justify-center grid grid-rows-5 overflow-y-auto'> 
+          {hotelInfo && hotelInfo.map(hotel => (
+            <Accordion className='' key={hotel.id}>
+              <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
+                <p>{hotel.group}</p> 
+              </AccordionSummary>
+              <AccordionDetails>
+                <div className='overflow-y-auto'>
+                  {hotel.entities.map(entity => (
+                    <p>{entity.name}</p>
+                  ))}
+                </div>
+              </AccordionDetails>
+            </Accordion>
+          ))}
+        </div>
+        </AccordionDetails>
+        </Accordion>
         </div>
       </div>
     );
