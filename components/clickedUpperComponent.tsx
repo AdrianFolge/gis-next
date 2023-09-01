@@ -30,7 +30,7 @@ function formatCountryName(countryName) {
 
 
 
-function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions}) {
+function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo}) {
   const cityName = object.name.toLowerCase()
   const options = {
     method: 'GET',
@@ -49,7 +49,6 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
     const [secondImages, setSecondImages] = useState([])
     const [thirdImages, setThirdImages] = useState([])
     const [weather, setWeather] = useState(null)
-    const [hotelInfo, setHotelInfo] = useState(null)
     if (!object || !object.nearestAirportDistance) {
       return (
         <div className='w-full h-full bg-white'>
@@ -223,20 +222,13 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
               <h3 className='mx-auto text-center'>Hoteller</h3>
             </AccordionSummary>
             <AccordionDetails>
-        <div className='items-center justify-center grid grid-rows-5 overflow-y-auto'> 
+        <div className=' justify-center items-center overflow-y-auto '> 
           {hotelInfo && hotelInfo.map(hotel => (
-            <Accordion className='' key={hotel.id}>
-              <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
-                <p>{hotel.group}</p> 
-              </AccordionSummary>
-              <AccordionDetails>
-                <div className='overflow-y-auto'>
+                <div className='overflow-y-auto justify-center items-center text-center'>
                   {hotel.entities.map(entity => (
-                    <p>{entity.name}</p>
+                    <p className='m-3'>{entity.name}</p>
                   ))}
                 </div>
-              </AccordionDetails>
-            </Accordion>
           ))}
         </div>
         </AccordionDetails>
