@@ -5,8 +5,9 @@ import Slider from '@mui/material/Slider';
 import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon, findClosestAttractions } from '../helpers/helperFunctions';
 import InfoCard from '../components/card';
 import ClickedUpperComponent from '../components/clickedUpperComponent';
-import { Checkbox, FormControlLabel } from '@mui/material';
-import * as turf from "@turf/turf"
+import { Checkbox, FormControlLabel, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 
 const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
 const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_populated_places_simple.geojson"
@@ -35,6 +36,8 @@ function river() {
 
     const [lakesSliderMaxValue, setLakesSliderMaxValue] = useState(0)
     const [lakesSliderValue, setLakesSliderValue] = useState(0);
+    const [hotelInfo, setHotelInfo] = useState(null)
+    const [showHotelInfo, setShowHotelInfo] = useState(false);
 
     const [pointDataWithDistance, setPointDataWithDistance] = useState(null);
     const [pointDataWithDistanceManipulated, setPointDataWithDistanceManipulated] = useState(null);
@@ -78,6 +81,9 @@ function river() {
     const handleUpperDivClick = () => {
       setInfoCardClicked(!infoCardClicked);
       setSingleCityFeature(null)
+      setDrivingInstructionsLine(null)
+      setDrivingInstructionsPointLayer(null)
+      setListOfInstructions(null)
     };
       
     const handleShowRiversChange = () => {
@@ -118,14 +124,13 @@ function river() {
     const [viewState, setViewState] = useState({
       latitude: 10.56,
       longitude: 63.161,
-      zoom: 10,
+      zoom: 6,
     });
     const mapReference = useRef<MapRef>()
     const handleInfoCardClick = (latitude, longitude, object) => {
       setDrivingInstructionsLine(null)
       setDrivingInstructionsPointLayer(null)
       setListOfInstructions(null)
-      console.log(object)
         const attractionsFeature = object.properties.nearestAttractions;
         setThreeAttractionsFeature(attractionsFeature)
         setInfoCardClicked(true);
@@ -342,6 +347,11 @@ function river() {
   return (
     <div className="h-screen w-screen relative overflow-hidden">
       <div className="h-screen w-1/4 bg-gray-800 fixed left-0 flex flex-col  z-10">
+          <Accordion className='bg-gray-800'>
+            <AccordionSummary className="bg-white rounded-lg m-4" expandIcon={<ExpandMoreIcon />}>
+              <h3 className='mx-auto text-center'>Juster kriterier</h3>
+            </AccordionSummary>
+            <AccordionDetails>
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
                 <div className='flex justify-center items-center'>
                 <h3 className='mx-auto text-center'>Distanse fra elv</h3>
@@ -402,6 +412,8 @@ function river() {
                     <Slider defaultValue={lakesSliderMaxValue} min={0} max={lakesSliderMaxValue} aria-label="Default" valueLabelDisplay="auto" onChange={handleLakesSliderChange}/>
                 )}
             </div>
+            </AccordionDetails>
+      </Accordion>
         <div className="justify-between items-center center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 flex">
             <p className='mx-auto text-center'>Points matching your description: {pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
             <FormControlLabel
@@ -422,9 +434,8 @@ function river() {
       {infoCardClicked && (
       <div
           className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
-          onClick={handleUpperDivClick}
         >
-            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo} setDrivingInstructionsLine={setDrivingInstructionsLine} setDrivingInstructionsPointLayer={setDrivingInstructionsPointLayer} setListOfInstructions={setListOfInstructions}/>
+            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo} setDrivingInstructionsLine={setDrivingInstructionsLine} setDrivingInstructionsPointLayer={setDrivingInstructionsPointLayer} setListOfInstructions={setListOfInstructions} hotelInfo={hotelInfo} setHotelInfo={setHotelInfo} showHotelInfo={showHotelInfo} setShowHotelInfo={setShowHotelInfo}/>
         </div> )}
       {drivingInstructionsPointLayer && listOfInstructions && (
         <div className='fixed top-2/4 left-3/4 w-1/4 h-1/5 gap-2 z-20 bg-opacity-60 overflow-y-auto' onScroll={handleScroll}>
@@ -442,7 +453,7 @@ function river() {
               ))}
         </div>
       )}
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo} drivingInstructionsLine={drivingInstructionsLine} drivingInstructionsPointLayer={drivingInstructionsPointLayer}/>
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo} drivingInstructionsLine={drivingInstructionsLine} drivingInstructionsPointLayer={drivingInstructionsPointLayer} onClick={handleUpperDivClick} hotelInfo={hotelInfo} showHotelInfo={showHotelInfo}/>
     </div>
   )
 }

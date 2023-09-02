@@ -34,9 +34,12 @@ interface MapComponentProps {
     setDrivingInfo;
     drivingInstructionsLine;
     drivingInstructionsPointLayer;
+    onClick;
+    hotelInfo;
+    showHotelInfo;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer, onClick, hotelInfo, showHotelInfo }) => {
   const [blinkOpacity, setBlinkOpacity] = useState(0.8);
   const [routeGeoJSON, setRouteGeoJSON] = useState(null);
   const [style, setStyle] = useState("mapbox://styles/mapbox/dark-v11")
@@ -48,15 +51,19 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       return () => clearInterval(interval);
     }, []);
     useEffect(() => {
-      if (singleCityFeature && threeAttractionsFeature && threeAttractionsFeature.features.length > 0) {
+      if (singleCityFeature && singleAirportFeature && singlePortFeature && threeAttractionsFeature && threeAttractionsFeature.features.length > 0) {
         const startCoords = singleCityFeature.geometry.coordinates;
         const firstEndCoords = threeAttractionsFeature.features[0].geometry.coordinates;
         const secondEndCoords = threeAttractionsFeature.features[1].geometry.coordinates;
         const thirdEndCoords = threeAttractionsFeature.features[2].geometry.coordinates;
+        const airportEndCoords = singleAirportFeature.geometry.coordinates
+        const portEndCoords = singlePortFeature.geometry.coordinates
         const fetchPromises = [
           fetchDirections(startCoords, firstEndCoords, '#0074D9'),
           fetchDirections(startCoords, secondEndCoords, '#FF4136'),
-          fetchDirections(startCoords, thirdEndCoords, '#2ECC40')
+          fetchDirections(startCoords, thirdEndCoords, '#2ECC40'),
+          fetchDirections(startCoords, airportEndCoords, '#800080'),
+          fetchDirections(startCoords, portEndCoords, '#4169E1')
         ];
         
         // Wait for all directions to be fetched
@@ -88,6 +95,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
       onMove={evt => {setViewState(evt.viewState)
       }}
       mapStyle={style}
+      onClick={onClick}
     >
       {drivingInstructionsPointLayer && (
         <>
@@ -282,6 +290,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
             }}
           />
         </Source>
+        {hotelInfo && showHotelInfo && (
+          hotelInfo.map(hotel => (
+            hotel.entities.map(entity => (
+              <Marker longitude={entity.longitude} latitude={entity.latitude} />
+            ))
+          ))
+        )}
         </>
         )}</>)}
     </ReactMapGL>

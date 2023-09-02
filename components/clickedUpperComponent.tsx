@@ -10,6 +10,8 @@ import { createApi } from 'unsplash-js';
 import axios from 'axios';
 import Smallcard from './smallCard';
 import MediumCard from './mediumCard';
+import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 const unsplash = createApi({
   accessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY,
@@ -24,7 +26,24 @@ function formatCountryName(countryName) {
 }
 
 
-function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions}) {
+
+
+
+
+function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo}) {
+  const cityName = object.name.toLowerCase()
+  const options = {
+    method: 'GET',
+    url: 'https://hotels4.p.rapidapi.com/locations/search',
+    params: {
+      query: `${cityName}`,
+    },
+    headers: {
+      'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
+      'X-RapidAPI-Host': 'hotels4.p.rapidapi.com'
+    }
+  };
+
     const [images, setImages] = useState([]);
     const [firstImages, setFirstImages] = useState([])
     const [secondImages, setSecondImages] = useState([])
@@ -80,10 +99,18 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
           setThirdImages(result.response.results);
         }
       });
+      axios.request(options)
+      .then(response => {
+        const cityInfo = response.data;
+        console.log(cityInfo);
+        setHotelInfo(cityInfo.suggestions)
+      })
+      .catch(error => {
+        console.error(error);
+      });
     }, [object]);
 
     function handleMediumCardClick(features, object){
-      console.log(features); 
       console.log(object)
       const routeFeature = {
         type: 'Feature',
@@ -118,7 +145,11 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
   
     };
     const formattedCountryName = formatCountryName(obj.adm0name);
-    const arrayOfImages = [firstImages, secondImages, thirdImages]
+    const arrayOfImages = [firstImages, secondImages, thirdImages];
+    const handleAccordionChange = (event, isExpanded) => {
+      // Update showHotelInfo state based on whether the Accordion is expanded
+      setShowHotelInfo(isExpanded);
+    };
     return (
       <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white'>
         <div className='h-full items-center flex justify-center'> 
@@ -160,8 +191,14 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
             <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index} onClick={() => handleMediumCardClick(feature, object)}/>
           ))}
         </div>
+        <div className='overflow-y-auto'>
+        <Accordion className="">
+            <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
+              <h3 className='mx-auto text-center'>Aktiviteter</h3>
+            </AccordionSummary>
+            <AccordionDetails>
         <div className='h-full items-center justify-center grid grid-rows-5'> 
-          <div className='flex gap-3'>
+          <div className='flex gap-3 p-3 rounded-lg' style={{backgroundColor: "#800080"}} onClick={() => handleMediumCardClick(object.nearestAirportDistance.properties, object)}>
             <p>Nærmeste flyplass: {airport.properties.properties.name_en} ({Math.ceil(airport.minDistance)}) km</p>
             <ConnectingAirportsIcon/>
           </div>
@@ -177,10 +214,29 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
             <p>Nærmeste koralrev: {Math.ceil(obj.nearestReefsDistance.minDistance)} km</p>
             <ScubaDivingIcon/>
           </div>
-          <div className='flex gap-3'>
+          <div className='flex gap-3 p-3 rounded-lg' style={{backgroundColor: "#4169E1"}} onClick={() => handleMediumCardClick(object.nearestPortDistance.properties, object)}>
             <p>Nærmeste havn: {obj.nearestPortDistance.properties.properties.name} ({Math.ceil(obj.nearestPortDistance.minDistance)}) km</p>
             <DirectionsBoatFilledIcon/>
           </div>
+        </div>
+        </AccordionDetails>
+        </Accordion>
+        <Accordion className="overflow-y-auto" expanded={showHotelInfo} onChange={handleAccordionChange} >
+            <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
+              <h3 className='mx-auto text-center'>Hoteller</h3>
+            </AccordionSummary>
+            <AccordionDetails>
+        <div className=' justify-center items-center overflow-y-auto '> 
+          {hotelInfo && hotelInfo.map(hotel => (
+                <div className='overflow-y-auto justify-center items-center text-center'>
+                  {hotel.entities.map(entity => (
+                    <p className='m-3'>{entity.name}</p>
+                  ))}
+                </div>
+          ))}
+        </div>
+        </AccordionDetails>
+        </Accordion>
         </div>
       </div>
     );
