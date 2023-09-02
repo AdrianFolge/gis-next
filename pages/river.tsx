@@ -37,6 +37,7 @@ function river() {
     const [lakesSliderMaxValue, setLakesSliderMaxValue] = useState(0)
     const [lakesSliderValue, setLakesSliderValue] = useState(0);
     const [hotelInfo, setHotelInfo] = useState(null)
+    const [showHotelInfo, setShowHotelInfo] = useState(false);
 
     const [pointDataWithDistance, setPointDataWithDistance] = useState(null);
     const [pointDataWithDistanceManipulated, setPointDataWithDistanceManipulated] = useState(null);
@@ -434,7 +435,7 @@ function river() {
       <div
           className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
         >
-            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo} setDrivingInstructionsLine={setDrivingInstructionsLine} setDrivingInstructionsPointLayer={setDrivingInstructionsPointLayer} setListOfInstructions={setListOfInstructions} hotelInfo={hotelInfo} setHotelInfo={setHotelInfo}/>
+            <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo} setDrivingInstructionsLine={setDrivingInstructionsLine} setDrivingInstructionsPointLayer={setDrivingInstructionsPointLayer} setListOfInstructions={setListOfInstructions} hotelInfo={hotelInfo} setHotelInfo={setHotelInfo} showHotelInfo={showHotelInfo} setShowHotelInfo={setShowHotelInfo}/>
         </div> )}
       {drivingInstructionsPointLayer && listOfInstructions && (
         <div className='fixed top-2/4 left-3/4 w-1/4 h-1/5 gap-2 z-20 bg-opacity-60 overflow-y-auto' onScroll={handleScroll}>
@@ -452,7 +453,7 @@ function river() {
               ))}
         </div>
       )}
-        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo} drivingInstructionsLine={drivingInstructionsLine} drivingInstructionsPointLayer={drivingInstructionsPointLayer} onClick={handleUpperDivClick} hotelInfo={hotelInfo}/>
+        <MapComponent pointLayer={pointDataWithDistanceManipulated} lineLayer={lineData} portsPointLayer={portsData} viewState={viewState} setViewState={setViewState} coastLinesLayer={coastlinesData} reefsLayer={reefsData} lakesLayer={lakesData} mapReference={mapReference} airportLayer={airportData} singleCityFeature={singleCityFeature} singleAirportFeature={singleAirportFeature} singleCoastFeature={singleCoastFeature} singlePortFeature={singlePortFeature} singleReefFeature={singleReefFeature} singleRiverFeature={singleRiverFeature} showAirportsLayer={showAirportsLayer} showCoastsLayer={showCoastsLayer} showLakesLayer={showLakesLayer} showPortsLayer={showPortsLayer} showReefsLayer={showReefsLayer} showRiversLayer={showRiversLayer} threeAttractionsFeature={threeAttractionsFeature} setDrivingInfo={setDrivingInfo} drivingInstructionsLine={drivingInstructionsLine} drivingInstructionsPointLayer={drivingInstructionsPointLayer} onClick={handleUpperDivClick} hotelInfo={hotelInfo} showHotelInfo={showHotelInfo}/>
     </div>
   )
 }

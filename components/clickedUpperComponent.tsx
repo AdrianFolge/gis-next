@@ -30,7 +30,7 @@ function formatCountryName(countryName) {
 
 
 
-function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo}) {
+function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo}) {
   const cityName = object.name.toLowerCase()
   const options = {
     method: 'GET',
@@ -145,7 +145,11 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
   
     };
     const formattedCountryName = formatCountryName(obj.adm0name);
-    const arrayOfImages = [firstImages, secondImages, thirdImages]
+    const arrayOfImages = [firstImages, secondImages, thirdImages];
+    const handleAccordionChange = (event, isExpanded) => {
+      // Update showHotelInfo state based on whether the Accordion is expanded
+      setShowHotelInfo(isExpanded);
+    };
     return (
       <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white'>
         <div className='h-full items-center flex justify-center'> 
@@ -217,7 +221,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
         </div>
         </AccordionDetails>
         </Accordion>
-        <Accordion className="overflow-y-auto">
+        <Accordion className="overflow-y-auto" expanded={showHotelInfo} onChange={handleAccordionChange} >
             <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
               <h3 className='mx-auto text-center'>Hoteller</h3>
             </AccordionSummary>
