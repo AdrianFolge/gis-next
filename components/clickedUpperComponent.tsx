@@ -32,6 +32,11 @@ function formatCountryName(countryName) {
 
 function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo}) {
   const [restaurantID, setRestaurantID] = useState(null)
+  const [displayRestaurantInfo, setDisplayRestaurantInfo] = useState(null)
+  const [restaurantDetailsID, setRestaurantDetailsID] = useState(null)
+  const [restaurantArray, setRestaurantArray] = useState(null)
+  const [restaurantAccordionExpanded, setRestaurantAccordionExpanded] = useState(false)
+  const [restaurantClicked, setRestaurantClicked] = useState(false)
   const cityName = object.name.toLowerCase()
   const options = {
     method: 'GET',
@@ -59,6 +64,18 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       method: 'GET',
       url: 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants',
       params: { locationId: `${restaurantID}` },
+      headers: {
+        'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
+        'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
+      }
+    };
+
+    const tripAdvisorRestaurantDetail = {
+      method: 'GET',
+      url: 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/getRestaurantDetails',
+      params: {     restaurantsId: `${restaurantDetailsID}`,
+                    currencyCode: 'USD' 
+      },
       headers: {
         'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
         'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
@@ -138,6 +155,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
         .request(tripAdvisorOptionsRestaurants)
         .then(secondResponse => {
           console.log(secondResponse.data);
+          setRestaurantArray(secondResponse.data.data.data)
         })
         .catch(error => {
           console.error(error);
@@ -190,47 +208,95 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       // Update showHotelInfo state based on whether the Accordion is expanded
       setShowHotelInfo(isExpanded);
     };
+    const handleRestaurantAccordion = (event, isExpanded) => {
+      setRestaurantAccordionExpanded(isExpanded)
+    }
+    console.log(restaurantArray)
+    function handleRestaurantClick(restaurant) {
+      console.log(restaurant.restaurantsId)
+      setRestaurantClicked(true);
+      setRestaurantDetailsID(restaurant.restaurantsId)
+      axios.request(tripAdvisorRestaurantDetail)
+      .then(response => {
+        console.log(response.data);
+        setDisplayRestaurantInfo(response.data.data)
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+    }
     return (
       <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white'>
-        <div className='h-full items-center flex justify-center'> 
-          <div className="relative h-full w-full flex-shrink-0">
-            {images.length > 0 ? (
-              <Image alt="" src={images[0].urls.regular} layout="fill" objectFit="cover" unoptimized={true} className='rounded-xl'/>
-            ) : (
-              <p>No images available.</p>
-            )}
-          </div>
-        </div>
-        <div className='h-full items-center justify-center grid grid-rows-5'> 
-          <div className='flex gap-3 items-center'>
-            <h4 className='text-2xl'>{obj.name}</h4>
-            <div className="relative h-6 w-6">
-                    <Image 
-                        alt=""
-                        src={`https://cdn.countryflags.com/thumbs/${formattedCountryName}/flag-square-500.png`}
-                        layout="fill"
-                        className="rounded-lg"
-                        unoptimized={true}
-                    />
-              </div>
-          </div>
-          <div className='flex gap-3'>
-            <h1 className='text-l'>Innbyggertall: {Math.ceil(obj.pop_max)}</h1>
-            <PeopleIcon />
-          </div>
-          {weather && (
-          <div className='flex row-span-3 overflow-x-auto'>
-            {Array.from({ length: 7 }, (_, index) => (
-              <Smallcard key={index} result={weather} day={index*24}/>
-            ))}
-          </div>
-          )}
-        </div>
-        <div className='grid grid-cols-1 md:grid-rows-3 gap-4 justify-center ml-20'>
-          {object.nearestAttractions.features.map((feature, index) => (
-            <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index} onClick={() => handleMediumCardClick(feature, object)}/>
-          ))}
-        </div>
+        {!restaurantClicked ? (
+          <>
+                  <div className='h-full items-center flex justify-center'> 
+                  <div className="relative h-full w-full flex-shrink-0">
+                    {images.length > 0 ? (
+                      <Image alt="" src={images[0].urls.regular} layout="fill" objectFit="cover" unoptimized={true} className='rounded-xl'/>
+                    ) : (
+                      <p>No images available.</p>
+                    )}
+                  </div>
+                </div>
+                <div className='h-full items-center justify-center grid grid-rows-5'> 
+                  <div className='flex gap-3 items-center'>
+                    <h4 className='text-2xl'>{obj.name}</h4>
+                    <div className="relative h-6 w-6">
+                            <Image 
+                                alt=""
+                                src={`https://cdn.countryflags.com/thumbs/${formattedCountryName}/flag-square-500.png`}
+                                layout="fill"
+                                className="rounded-lg"
+                                unoptimized={true}
+                            />
+                      </div>
+                  </div>
+                  <div className='flex gap-3'>
+                    <h1 className='text-l'>Innbyggertall: {Math.ceil(obj.pop_max)}</h1>
+                    <PeopleIcon />
+                  </div>
+                  {weather && (
+                  <div className='flex row-span-3 overflow-x-auto'>
+                    {Array.from({ length: 7 }, (_, index) => (
+                      <Smallcard key={index} result={weather} day={index*24}/>
+                    ))}
+                  </div>
+                  )}
+                </div>
+                <div className='grid grid-cols-1 md:grid-rows-3 gap-4 justify-center ml-20'>
+                  {object.nearestAttractions.features.map((feature, index) => (
+                    <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index} onClick={() => handleMediumCardClick(feature, object)}/>
+                  ))}
+                </div>
+                </>
+        ): (displayRestaurantInfo &&  <div className='h-full items-center flex justify-center col-span-3'>
+          <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+  <h2 className="text-2xl font-semibold mb-2">
+    {displayRestaurantInfo.name}
+  </h2>
+  <div className="mb-2">
+    <span className="text-yellow-500">Rating:</span> 5.0
+  </div>
+  <p className="text-gray-700">
+    Saptami - our all day dining restaurant offers authentic cuisines with efficient service and local knowledge. Saptami offers a plethora of cuisines like Indian, Continental, Oriental etc. It is close to both the terminals and north Mumbai business hubs with the international airport at 1.2 km and domestic airport at 5 km.
+  </p>
+  <div className="mt-2">
+    <span className="text-green-500">Price Level:</span> $$$$ ($1,200 - $2,000)
+  </div>
+  <div className="mt-2">
+    <span className="text-blue-500">Location:</span> Mumbai, Maharashtra
+  </div>
+  <div className="mt-2">
+    <span className="text-green-500">Open Status:</span> Open Now
+  </div>
+  
+
+  <div className="mt-2">
+    <a href="http://www.holidayinn.com/hotels/us/en/mumbai/bomap/hoteldetail/dining" className="text-blue-500 hover:underline">Website</a>
+  </div>
+</div> 
+        </div>)}
         <div className='overflow-y-auto'>
         <Accordion className="">
             <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
@@ -274,6 +340,20 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
                   ))}
                 </div>
           ))}
+        </div>
+        </AccordionDetails>
+        </Accordion>
+        <Accordion className="overflow-y-auto" expanded={restaurantAccordionExpanded} onChange={handleRestaurantAccordion}>
+            <AccordionSummary className="bg-white rounded-lg" expandIcon={<ExpandMoreIcon />}>
+              <h3 className='mx-auto text-center'>Restauranter</h3>
+            </AccordionSummary>
+            <AccordionDetails>
+        <div className=' justify-center items-center overflow-y-auto '> 
+                <div className='overflow-y-auto justify-center items-center text-center'>
+                  {restaurantArray && restaurantArray.map(restaurant => (
+                    <p className='m-3' onClick={() => handleRestaurantClick(restaurant)}>{restaurant.name}</p>
+                  ))}
+                </div>
         </div>
         </AccordionDetails>
         </Accordion>
