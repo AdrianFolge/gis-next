@@ -31,6 +31,7 @@ function formatCountryName(countryName) {
 
 
 function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo}) {
+  const [restaurantID, setRestaurantID] = useState(null)
   const cityName = object.name.toLowerCase()
   const options = {
     method: 'GET',
@@ -43,6 +44,26 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       'X-RapidAPI-Host': 'hotels4.p.rapidapi.com'
     }
   };
+
+  const tripadvisorRestaurantsId = {
+    method: 'GET',
+    url: 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchLocation',
+    params: { query: `${cityName}` },
+    headers: {
+      'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
+      'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
+    }
+    };
+
+    const tripAdvisorOptionsRestaurants = {
+      method: 'GET',
+      url: 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants',
+      params: { locationId: `${restaurantID}` },
+      headers: {
+        'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
+        'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
+      }
+    };
 
     const [images, setImages] = useState([]);
     const [firstImages, setFirstImages] = useState([])
@@ -102,13 +123,32 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       axios.request(options)
       .then(response => {
         const cityInfo = response.data;
-        console.log(cityInfo);
         setHotelInfo(cityInfo.suggestions)
       })
       .catch(error => {
         console.error(error);
       });
-    }, [object]);
+
+      axios
+      .request(tripadvisorRestaurantsId)
+      .then(response => {
+        console.log(response.data.data[0].locationId);
+        setRestaurantID(response.data.data[0].locationId)
+        axios
+        .request(tripAdvisorOptionsRestaurants)
+        .then(secondResponse => {
+          console.log(secondResponse.data);
+        })
+        .catch(error => {
+          console.error(error);
+        });
+      })
+      .catch(error => {
+        console.error(error);
+      });
+      }, [object]);
+
+    
 
     function handleMediumCardClick(features, object){
       console.log(object)
