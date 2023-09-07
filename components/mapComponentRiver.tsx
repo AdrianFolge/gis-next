@@ -37,9 +37,10 @@ interface MapComponentProps {
     onClick;
     hotelInfo;
     showHotelInfo;
+    restaurantClicked;
 }
 
-const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer, onClick, hotelInfo, showHotelInfo }) => {
+const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, viewState, setViewState, portsPointLayer, coastLinesLayer, lakesLayer, reefsLayer, mapReference, airportLayer, singleCityFeature, singleAirportFeature, singleCoastFeature, singlePortFeature, singleReefFeature, singleRiverFeature, showAirportsLayer, showCoastsLayer, showLakesLayer, showPortsLayer, showReefsLayer, showRiversLayer, threeAttractionsFeature, setDrivingInfo, drivingInstructionsLine, drivingInstructionsPointLayer, onClick, hotelInfo, showHotelInfo, restaurantClicked }) => {
   const [blinkOpacity, setBlinkOpacity] = useState(0.8);
   const [routeGeoJSON, setRouteGeoJSON] = useState(null);
   const [style, setStyle] = useState("mapbox://styles/mapbox/dark-v11")
@@ -296,6 +297,9 @@ const MapComponent: React.FC<MapComponentProps> = ({ pointLayer, lineLayer, view
               <Marker longitude={entity.longitude} latitude={entity.latitude} />
             ))
           ))
+        )}
+        {restaurantClicked.isClicked && (
+          <Marker longitude={restaurantClicked.longitude} latitude={restaurantClicked.latitude} color='#800080' />
         )}
         </>
         )}</>)}
