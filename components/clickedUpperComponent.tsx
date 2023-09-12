@@ -26,6 +26,7 @@ function formatCountryName(countryName) {
 }
 
 function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo, setViewState, restaurantClicked, setRestaurantClicked}) {
+  const [travelAdvisor, setTravelAdvisor] = useState(null);
   const [restaurantID, setRestaurantID] = useState(null)
   const [displayRestaurantInfo, setDisplayRestaurantInfo] = useState(null)
   const [restaurantDetailsID, setRestaurantDetailsID] = useState(null)
@@ -37,6 +38,25 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
   const [thirdImages, setThirdImages] = useState([])
   const [weather, setWeather] = useState(null)
   const cityName = object.name.toLowerCase()
+  const getTravelAdvisor = {
+    method: 'GET',
+    url: 'https://travel-advisor.p.rapidapi.com/restaurants/list-by-latlng',
+    params: {
+      latitude: `${object.latitude}`,
+      longitude: `${object.longitude}`,
+      limit: '30',
+      currency: 'USD',
+      distance: '2',
+      open_now: 'false',
+      lunit: 'km',
+      lang: 'en_US'
+    },
+    headers: {
+      'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
+      'X-RapidAPI-Host': 'travel-advisor.p.rapidapi.com'
+    }  
+  };
+
   const options = {
     method: 'GET',
     url: 'https://hotels4.p.rapidapi.com/locations/search',
@@ -140,18 +160,11 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       console.error(error);
     });
 
-    axios
-    .request(tripadvisorRestaurantsId)
+    axios.request(getTravelAdvisor)
     .then(response => {
-      setRestaurantID(response.data.data[0].locationId)
-      axios
-      .request(tripAdvisorOptionsRestaurants)
-      .then(secondResponse => {
-        setRestaurantArray(secondResponse.data.data.data)
-      })
-      .catch(error => {
-        console.error(error);
-      });
+      console.log(response.data.data);
+      setRestaurantArray(response.data.data)
+      
     })
     .catch(error => {
       console.error(error);
@@ -161,7 +174,6 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
     
 
   function handleMediumCardClick(features, object){
-    console.log(object)
     const routeFeature = {
       type: 'Feature',
       geometry: {
@@ -211,30 +223,18 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       })
     }
   }
-  console.log(displayRestaurantInfo)
   function handleRestaurantClick(restaurant) {
-    console.log(restaurant.restaurantsId)
-    setRestaurantDetailsID(restaurant.restaurantsId)
-    axios.request(tripAdvisorRestaurantDetail)
-    .then(response => {
-      console.log(response.data);
-      setDisplayRestaurantInfo(response.data.data)
-      setRestaurantClicked({
-        isClicked: true,
-        latitude: response.data.data.location.latitude,
-        longitude: response.data.data.location.longitude
-      });
-      setViewState({
-        latitude: response.data.data.location.latitude,
-        longitude: response.data.data.location.longitude,
-        zoom: 16,
+    setDisplayRestaurantInfo(restaurant)
+    setRestaurantClicked({
+      isClicked: true,
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude
     });
-
-    })
-    .catch(error => {
-      console.error(error);
-    });
-  }
+    setViewState({
+      latitude: restaurant.latitude,
+      longitude: restaurant.longitude,
+      zoom: 16,
+  })}
   return (
     <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white'>
         {!restaurantClicked.isClicked ? (
@@ -280,30 +280,34 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
                 </div>
                 </>
         ): (displayRestaurantInfo &&  
-        <div className='h-full items-center flex col-span-3 pl-2'>
-          <div className="bg-gray-100 p-4 rounded-lg shadow-md">
+        <div className='h-full items-center flex col-span-3 pl-2 grid-cols-2 bg-gray-100 p-4 rounded-lg shadow-md gap-2 overflow-y-auto'>
+          <div className="w-full h-full">
             <h2 className="text-2xl font-semibold mb-2">
-              {displayRestaurantInfo.overview.name}
+              {displayRestaurantInfo.name}
             </h2>
-            <div className="mb-2">
-              <span className="text-yellow-500">Rating:</span> {displayRestaurantInfo.location.rating} ({displayRestaurantInfo.location.ranking})
-            </div>
             <p className="text-gray-700">
-              {displayRestaurantInfo.location.description}
+              {displayRestaurantInfo.description}
             </p>
             <div className="mt-2">
-              <span className="text-green-500">Price Level:</span> {displayRestaurantInfo.location.price_level} ({displayRestaurantInfo.location.price})
+              <span className="text-green-500">Price Level:</span> {displayRestaurantInfo.price_level} ({displayRestaurantInfo.price})
             </div>
             <div className="mt-2">
-              <span className="text-blue-500">Location:</span> {displayRestaurantInfo.location.address}
+              <span className="text-blue-500">Location:</span> {displayRestaurantInfo.address}
             </div>
             <div className="mt-2">
-              <span className={displayRestaurantInfo.hours.openStatus === "OPEN" ? "text-green-500" : "text-red-500"}>Open Status:</span> {displayRestaurantInfo.hours.openStatusText}
+              <span className={displayRestaurantInfo.is_closed === false ? "text-green-500" : "text-red-500"}>{displayRestaurantInfo.is_closed === false ? "Open" : "Closed"}</span>
             </div>
             <div className="mt-2">
-              <a className="text-blue-500 hover:underline">{displayRestaurantInfo.location.website}</a>
+              <a className="text-blue-500 hover:underline">{displayRestaurantInfo.website}</a>
             </div>
           </div> 
+          <div className='w-full h-full'>
+          {displayRestaurantInfo && displayRestaurantInfo.photo && displayRestaurantInfo.photo.images && displayRestaurantInfo.photo.images.medium ? (
+          <Image alt={""}  src={displayRestaurantInfo.photo.images.medium.url} className="rounded-xl w-full h-full" width={100} height={100} unoptimized={true}/>
+          ) : (
+            <Image src="/images/rest.jpeg" alt="Fallback Restaurant" className="rounded-xl w-full h-full" width={100} height={100} />
+            )}
+          </div>
         </div>)}
         <div className='overflow-y-auto'>
         <Accordion className="">
