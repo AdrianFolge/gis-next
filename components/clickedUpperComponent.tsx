@@ -236,10 +236,10 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
       zoom: 16,
   })}
   return (
-    <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white'>
+    <div className='w-full h-full grid grid-cols-4 justify-between gap-6 bg-white bottom-1'>
         {!restaurantClicked.isClicked ? (
           <>
-            <div className='h-full items-center flex justify-center'> 
+            <div className='items-center flex justify-center'> 
               <div className="relative h-full w-full flex-shrink-0">
                     {images.length > 0 ? (
                       <Image alt="" src={images[0].urls.regular} layout="fill" objectFit="cover" unoptimized={true} className='rounded-xl'/>
@@ -248,7 +248,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
                     )}
               </div>
             </div>
-              <div className='h-full items-center justify-center grid grid-rows-5'> 
+              <div className='items-center justify-center grid grid-rows-5'> 
                 <div className='flex gap-3 items-center'>
                   <h4 className='text-2xl'>{obj.name}</h4>
                   <div className="relative h-6 w-6">
@@ -257,6 +257,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
                         src={`https://cdn.countryflags.com/thumbs/${formattedCountryName}/flag-square-500.png`}
                         layout="fill"
                         className="rounded-lg"
+                        objectFit='cover'
                         unoptimized={true}
                     />
                   </div>
@@ -273,7 +274,7 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
                   </div>
                   )}
                 </div>
-                <div className='grid grid-cols-1 md:grid-rows-3 gap-4 justify-center ml-20'>
+                <div className='grid grid-cols-1 md:grid-rows-3 gap-2 justify-center ml-20'>
                   {object.nearestAttractions.features.map((feature, index) => (
                     <MediumCard key={index} title={feature.properties.name} img={arrayOfImages[index]} drivingInfo={drivingInfo} index={index} onClick={() => handleMediumCardClick(feature, object)}/>
                   ))}

@@ -360,7 +360,7 @@ function river() {
             <AccordionDetails>
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
                 <div className='flex justify-center items-center'>
-                <h3 className='mx-auto text-center'>Distanse fra elv</h3>
+                <h3 className='mx-auto text-center'>Distanse til elv</h3>
                 <FormControlLabel
                     control={<Checkbox checked={showRiversLayer} onChange={handleShowRiversChange} />}
                     label="Vis elver"
@@ -372,7 +372,7 @@ function river() {
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
                 <div className='flex justify-center items-center'>
-                <h3 className='mx-auto text-center'>Distanse fra Kyst</h3>
+                <h3 className='mx-auto text-center'>Distanse til Kyst</h3>
                 <FormControlLabel
                     control={<Checkbox checked={showCoastsLayer} onChange={handleShowCoastsChange} />}
                     label="Vis kystlinje"
@@ -384,7 +384,7 @@ function river() {
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
                 <div className='flex justify-center items-center'>
-                <h3 className='mx-auto text-center'>Distanse fra Koralrev</h3>
+                <h3 className='mx-auto text-center'>Distanse til Koralrev</h3>
                 <FormControlLabel
                     control={<Checkbox checked={showReefsLayer} onChange={handleShowReefsChange} />}
                     label="Vis koralrev"
@@ -396,7 +396,7 @@ function river() {
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
                 <div className='flex justify-center items-center'>
-                <h3 className='mx-auto text-center'>Distanse fra havn</h3>
+                <h3 className='mx-auto text-center'>Distanse til havn</h3>
                 <FormControlLabel
                     control={<Checkbox checked={showPortsLayer} onChange={handleShowPortsChange} />}
                     label="Vis havndata"
@@ -408,7 +408,7 @@ function river() {
                 </div>
                 <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4">
                 <div className='flex justify-center items-center'>
-                <h3 className='mx-auto text-center'>Distanse fra innsjø</h3>
+                <h3 className='mx-auto text-center'>Distanse til innsjø</h3>
                 <FormControlLabel
                     control={<Checkbox checked={showLakesLayer} onChange={handleShowLakesChange} />}
                     label="Vis innsjø"
@@ -421,7 +421,7 @@ function river() {
             </AccordionDetails>
       </Accordion>
         <div className="justify-between items-center center bg-white bg-opacity-90 p-4 rounded-md shadow-md m-4 flex">
-            <p className='mx-auto text-center'>Points matching your description: {pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
+            <p className='mx-auto text-center'>Antall punkter: {pointDataWithDistanceManipulated ? pointDataWithDistanceManipulated.features.length : 0}</p>
             <FormControlLabel
                     control={<Checkbox checked={showAirportsLayer} onChange={handleShowAirportsChange} />}
                     label="Vis flyplasser"
@@ -439,7 +439,7 @@ function river() {
       </div>
       {infoCardClicked && (
       <div
-          className="fixed top-0 left-1/4 w-3/4 h-1/4 bg-black z-20"
+          className="fixed top-0 left-1/4 w-3/4 h-1/3 bg-black z-20"
         >
             <ClickedUpperComponent object={airportObject} drivingInfo={drivingInfo} setDrivingInstructionsLine={setDrivingInstructionsLine} setDrivingInstructionsPointLayer={setDrivingInstructionsPointLayer} setListOfInstructions={setListOfInstructions} hotelInfo={hotelInfo} setHotelInfo={setHotelInfo} showHotelInfo={showHotelInfo} setShowHotelInfo={setShowHotelInfo} setViewState={setViewState} restaurantClicked={restaurantClicked} setRestaurantClicked={setRestaurantClicked}/>
         </div> )}
