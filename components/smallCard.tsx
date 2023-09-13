@@ -1,8 +1,6 @@
-import Image from "next/image"
 import ThunderstormIcon from '@mui/icons-material/Thunderstorm';
 import WbSunnyIcon from '@mui/icons-material/WbSunny';
 import CloudIcon from '@mui/icons-material/Cloud';
-import AcUnitIcon from '@mui/icons-material/AcUnit';
 function Smallcard({ result, day }) {
     const temperature = result.hourly.temperature_2m[day];
     const rain = result.hourly.rain[day];

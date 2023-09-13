@@ -26,10 +26,8 @@ function formatCountryName(countryName) {
 }
 
 function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo, setViewState, restaurantClicked, setRestaurantClicked}) {
-  const [travelAdvisor, setTravelAdvisor] = useState(null);
   const [restaurantID, setRestaurantID] = useState(null)
   const [displayRestaurantInfo, setDisplayRestaurantInfo] = useState(null)
-  const [restaurantDetailsID, setRestaurantDetailsID] = useState(null)
   const [restaurantArray, setRestaurantArray] = useState(null)
   const [restaurantAccordionExpanded, setRestaurantAccordionExpanded] = useState(false)
   const [images, setImages] = useState([]);
@@ -83,18 +81,6 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
     method: 'GET',
     url: 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/searchRestaurants',
     params: { locationId: `${restaurantID}` },
-    headers: {
-      'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
-      'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
-    }
-  };
-
-  const tripAdvisorRestaurantDetail = {
-    method: 'GET',
-    url: 'https://tripadvisor16.p.rapidapi.com/api/v1/restaurant/getRestaurantDetails',
-    params: {     restaurantsId: `${restaurantDetailsID}`,
-                  currencyCode: 'USD' 
-    },
     headers: {
       'X-RapidAPI-Key': '009df56685msh0c6db62aeb97668p1a6c24jsn9d4b6be588fd',
       'X-RapidAPI-Host': 'tripadvisor16.p.rapidapi.com'
@@ -210,7 +196,6 @@ function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine,
   const arrayOfImages = [firstImages, secondImages, thirdImages];
   
   const handleAccordionChange = (event, isExpanded) => {
-    // Update showHotelInfo state based on whether the Accordion is expanded
     setShowHotelInfo(isExpanded);
   };
   const handleRestaurantAccordion = (event, isExpanded) => {
