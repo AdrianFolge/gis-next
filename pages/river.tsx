@@ -3,20 +3,11 @@ import MapComponent from '../components/mapComponentRiver'
 import { MapRef } from "react-map-gl"
 import Slider from '@mui/material/Slider';
 import { calculateDistancesToNearestLine, calculateDistancesToNearestPoint, calculateDistancesToNearestPointPolygon, findClosestAttractions } from '../helpers/helperFunctions';
-import InfoCard from '../components/card';
+import InfoCard from '../components/infoCard';
 import ClickedUpperComponent from '../components/clickedUpperComponent';
 import { Checkbox, FormControlLabel, Accordion, AccordionSummary, AccordionDetails, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-
-
-const riverLines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_rivers_lake_centerlines_scale_rank.geojson"
-const pointsOfCities = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_110m_populated_places_simple.geojson"
-const pointsOfPorts = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_ports.geojson"
-const coastlines = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_coastline.geojson"
-const lakes = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_lakes.geojson"
-const reefs = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_reefs.geojson"
-const airport = "https://raw.githubusercontent.com/AdrianFolge/gis-next/main/data/osm-world-airports%40babel.geojson"
-const attractions = "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_populated_places_simple.geojson"
+import { pointsOfCities, riverLines, pointsOfPorts, coastlines, lakes, reefs, airport, attractions } from '../data/dataFiles';
 
 function river() {
     const [riverSliderMaxValue, setRiverSliderMaxValue] = useState(0)

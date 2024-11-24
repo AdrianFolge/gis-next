@@ -12,7 +12,7 @@ interface displayStatisticsProps {
 }
 
 
-const DisplayStatistics: React.FC<displayStatisticsProps> = ({displayTotalPoints, displayAverageDistance, displayNumberOfClusters, countryPoints, continentData}) => {
+export const DisplayStatistics = ({displayTotalPoints, displayAverageDistance, displayNumberOfClusters, countryPoints, continentData}: displayStatisticsProps) => {
   return (
     <div className='grid grid-rows-2'>
         <div className="justify-between items-center bg-white bg-opacity-90 p-4 rounded-md shadow-md grid grid-rows-4 grid-cols-2 m-4">
@@ -84,5 +84,3 @@ const DisplayStatistics: React.FC<displayStatisticsProps> = ({displayTotalPoints
         </div>
     )
 }
-
-export default DisplayStatistics

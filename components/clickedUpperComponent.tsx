@@ -12,18 +12,11 @@ import Smallcard from './smallCard';
 import MediumCard from './mediumCard';
 import { Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import formatCountryName from '../helpers/formatCountryName';
 
 const unsplash = createApi({
   accessKey: process.env.REACT_APP_UNSPLASH_ACCESS_KEY,
 });
-
-function formatCountryName(countryName) {
-  if (countryName.includes(' ')) {
-    return countryName.toLowerCase().replace(/\s+/g, '-');
-  } else {
-    return countryName.toLowerCase();
-  }
-}
 
 function ClickedUpperComponent({object, drivingInfo, setDrivingInstructionsLine, setDrivingInstructionsPointLayer, setListOfInstructions, hotelInfo, setHotelInfo, showHotelInfo,setShowHotelInfo, setViewState, restaurantClicked, setRestaurantClicked}) {
   const [restaurantID, setRestaurantID] = useState(null)

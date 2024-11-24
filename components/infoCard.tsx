@@ -1,5 +1,6 @@
 import Image from "next/image"
-function InfoCard({object, onClick}) {
+
+export default function InfoCard({object, onClick}) {
     const properties = object.properties
     const getImageSource = (region) => {
         switch (region) {
@@ -15,9 +16,8 @@ function InfoCard({object, onClick}) {
                 return '/images/north_america.jpeg';
             case 'Oceania':
                 return '/images/oceania.jpeg';
-          // Add more cases for other regions
           default:
-            return '/images/else.jpeg'; // Fallback image
+            return '/images/else.jpeg';
         }
       };
     return (
@@ -62,5 +62,3 @@ function InfoCard({object, onClick}) {
         </div>
     )
 }
-
-export default InfoCard
